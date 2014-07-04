@@ -23,108 +23,98 @@ class user_input():
         self.number_runs = inputs[0] 
         self.length_run = inputs[1] #minutes
         #If True, shows all of the data for every fire
-        self.time_until_dark = inputs[2]
-        self.lightning_fires_day = inputs[3]
-        self.human_fires_day = inputs[4]
-        self.check_distance = inputs[5]
-        self.show_fire_attributes = inputs[6]
+        self.show_fire_attributes = inputs[2]
         #If True, save more statistics at the cost of memory
-        self.save_daily_averages = inputs[7]
+        self.save_daily_averages = inputs[3]
 
-        #FBP Info
+        #Weather
 
-        self.month = inputs[8]
-        self.day = inputs[9]
-        self.min_fmc_month = inputs[10]
-        self.min_fmc_day = inputs[11]
-        self.FFMC = inputs[12]
-        self.BUI = inputs[13]
-        self.wind_speed = inputs[14]
-        self.wind_direction = inputs[15]
-        #For M1, M2 fuel types, needs 0.0 <= PC <= 100.0
-        self.PC = inputs[16]
-        #For M3, M4 fuel types, needs 0.0 <= PDF <= 100.0
-        self.PDF = inputs[17]
-        self.GFL = inputs[18]
-        self.PCUR = inputs[19]
+        #Used to calculate number of fires per day
+        self.FFMC = inputs[4]
+        #Used to calculate Rate of Spread of Fires
+        self.ISI = inputs[5]
 
         #Forest
 
         
-        self.min_lat = inputs[20]
-        self.max_lat = inputs[21]
-        self.min_long = inputs[22]
-        self.max_long = inputs[23]
+        self.min_lat = inputs[6]
+        self.max_lat = inputs[7]
+        self.min_long = inputs[8]
+        self.max_long = inputs[9]
         #Number of forest stands in each row
-        self.num_rows = inputs[24]
+        self.num_rows = inputs[10]
         #Number of forest stands in each column
-        self.num_columns = inputs[25]
+        self.num_columns = inputs[11]
+        #For M1, M2 fuel types, needs 0.0 <= PC <= 100.0
+        self.PC = inputs[12]
+        #For M3, M4 fuel types, needs 0.0 <= PDF <= 100.0
+        self.PDF = inputs[13]
 
         #Bases
 
         
-        self.num_bases = inputs[26]
+        self.num_bases = inputs[14]
         #If len < num_bases, random number n, min_lat <= x <= max_lat
-        self.bases_lat = inputs[27]
+        self.bases_lat = inputs[15]
         #If len < num_bases, random number n, min_long <= x <= max_long
-        self.bases_long = inputs[28]
+        self.bases_long = inputs[16]
         #list of the number of airtankers at each base
-        self.base_num_airtankers = inputs[29]
+        self.base_num_airtankers = inputs[17]
         #list of the number of bird dogs at each base
-        self.base_num_bird_dogs = inputs[30]
+        self.base_num_bird_dogs = inputs[18]
         #Cruising speed of each airtanker, km/min
-        self.base_airtankers_cruising=[[inputs[31][x+int(sum(inputs[29][:y]))]\
-                                           for x in range(int(inputs[29][y]))]\
-                                           for y in range(len(inputs[29]))]
+        self.base_airtankers_cruising=[[inputs[19][x+int(sum(inputs[17][:y]))]\
+                                           for x in range(int(inputs[17][y]))]\
+                                           for y in range(len(inputs[17]))]
         #Fight fire flying speed of each airtanker km/min
-        self.base_airtankers_fight = [[inputs[32][x +int(sum(inputs[29][:y]))]\
-                                           for x in range(int(inputs[29][y]))]\
-                                           for y in range(len(inputs[29]))]
+        self.base_airtankers_fight = [[inputs[20][x +int(sum(inputs[17][:y]))]\
+                                           for x in range(int(inputs[17][y]))]\
+                                           for y in range(len(inputs[17]))]
         #circling speed of each airtanker km/min
-        self.base_airtankers_circling =[[inputs[33][x+int(sum(inputs[29][:y]))]\
-                                           for x in range(int(inputs[29][y]))]\
-                                           for y in range(len(inputs[29]))]
+        self.base_airtankers_circling =[[inputs[21][x+int(sum(inputs[17][:y]))]\
+                                           for x in range(int(inputs[17][y]))]\
+                                           for y in range(len(inputs[17]))]
         #Bird dogs cruising speed km/min
-        self.base_bird_dogs_cruising = [[inputs[34][x+int(sum(inputs[30][:y]))]\
-                                           for x in range(int(inputs[30][y]))]\
-                                           for y in range(len(inputs[30]))]
+        self.base_bird_dogs_cruising = [[inputs[22][x+int(sum(inputs[18][:y]))]\
+                                           for x in range(int(inputs[18][y]))]\
+                                           for y in range(len(inputs[18]))]
         #Bird dog speed when at fire km/min
-        self.base_bird_dogs_fight = [[inputs[35][x +int(sum(inputs[30][:y]))] \
-                                           for x in range(int(inputs[30][y]))]\
-                                           for y in range(len(inputs[30]))]
+        self.base_bird_dogs_fight = [[inputs[23][x +int(sum(inputs[18][:y]))] \
+                                           for x in range(int(inputs[18][y]))]\
+                                           for y in range(len(inputs[18]))]
         #Bird dogs circling speed km/min
-        self.base_bird_dogs_circling = [[inputs[36][x+int(sum(inputs[30][:y]))]\
-                                           for x in range(int(inputs[30][y]))]\
-                                           for y in range(len(inputs[30]))]
-        #Airtanker Fuel Capacity
-        self.base_airtankers_fuel_cap =[[inputs[37][x+int(sum(inputs[29][:y]))]\
-                                           for x in range(int(inputs[29][y]))]\
-                                           for y in range(len(inputs[29]))]
-        #Airtanker Fuel Consumption
-        self.base_airtankers_fuel_con = [[inputs[38]\
-                                              [x+int(sum(inputs[29][:y]))]\
-                                           for x in range(int(inputs[29][y]))]\
-                                           for y in range(len(inputs[29]))]
-        #bird dogs Fuel Capacity
-        self.base_bird_dogs_fuel_cap = [[inputs[39][x+int(sum(inputs[30][:y]))]\
-                                           for x in range(int(inputs[30][y]))]\
-                                           for y in range(len(inputs[30]))]
-        #bird dogs Fuel Consumption
-        self.base_bird_dogs_fuel_con = [[inputs[40]\
-                                             [x +int(sum(inputs[30][:y]))]\
-                                           for x in range(int(inputs[30][y]))]\
-                                           for y in range(len(inputs[30]))]
+        self.base_bird_dogs_circling = [[inputs[24][x+int(sum(inputs[18][:y]))]\
+                                           for x in range(int(inputs[18][y]))]\
+                                           for y in range(len(inputs[18]))]
+        #Max mins airtankers fly w/o return to a base
+        self.base_airtankers_max_time =[[inputs[25][x+int(sum(inputs[17][:y]))]\
+                                           for x in range(int(inputs[17][y]))]\
+                                           for y in range(len(inputs[17]))]
+        #max distance without return to a base km
+        self.base_airtankers_max_distance = [[inputs[26]\
+                                              [x+int(sum(inputs[17][:y]))]\
+                                           for x in range(int(inputs[17][y]))]\
+                                           for y in range(len(inputs[17]))]
+        #bird dogs max time without return to a base mins
+        self.base_bird_dogs_max_time = [[inputs[27][x+int(sum(inputs[18][:y]))]\
+                                           for x in range(int(inputs[18][y]))]\
+                                           for y in range(len(inputs[18]))]
+        #bird dogs max distance w/o return to a base
+        self.base_bird_dogs_max_distance = [[inputs[28]\
+                                             [x +int(sum(inputs[18][:y]))]\
+                                           for x in range(int(inputs[18][y]))]\
+                                           for y in range(len(inputs[18]))]
 
 
         #Random Points
 
 
         #Number of points in forest to track
-        self.num_points = inputs[41]
+        self.num_points = inputs[29]
         #If len < num_points, random number n, min_lat <= n <= max_lat
-        self.points_lat = inputs[42]
+        self.points_lat = inputs[30]
         #If len < num_points, random number n, min_long<= n <= max_long
-        self.points_long = inputs[43]
+        self.points_long = inputs[31]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #                       Read-only Variables (non-editable)
@@ -136,8 +126,7 @@ class user_input():
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 class Fire:
     def __init__(self, time_at_ignition, time_at_detection, time_at_report,  \
-                 slope, time, latitude, longitude, fuel_type, detected,\
-                 slope_azimult, inputs):
+                 slope, time, latitude, longitude, fuel_type, detected, ISI, PDF):
         self.time_at_ignition = time_at_ignition #Time Fire Starts
         self.time_at_detection = time_at_detection #Time Fire is Detected
         self.time_at_report = time_at_report #Time Fire is Reported
@@ -148,79 +137,44 @@ class Fire:
         self.fuel_type = fuel_type
         self.detected = detected #True if fire is detected, else False
         self.size_at_detection = -1.0
-        self.perimeter_at_detection = -1.0
+        self.radius_at_detection = -1.0
         self.size_at_report = -1.0
-        self.perimeter_at_report = -1.0
+        self.radius_at_report = -1.0
         self.size = 0.0 #Assume fires start as points
-        self.head_length = 0.0
-        self.flank_length = 0.0
-        self.back_length = 0.0
+        self.radius = 0.0
         self.max_size = 0.0 #largest size of fire
-        self.max_head_length = 0.0
-        self.max_flank_length = 0.0
-        self.max_back_length = 0.0
-        self.elevation = 0.0 #CHANGE
-        self.slope_azimult = slope_azimult
-        self.head_ros, self.flank_ros, self.back_ros, self.head_direction = \
-                       self.get_ros(inputs)
-        self.perimeter = 0.0
-        self.max_perimeter = 0.0
+        self.max_radius = 0.0
+        self.rate_of_growth = calculate_rate_of_growth(fuel_type, slope, ISI, PDF)
 
         #airtanker values
         self.size_at_airtanker_arrival = []
-        self.perimeter_at_airtanker_arrival = []
+        self.radius_at_airtanker_arrival = []
         self.time_at_airtanker_arrival = []
         self.time_at_controlled = -1.0
         self.controlled = False
         self.airtanker_return_time = []
 
 
-    def get_ros(self, inputs):
-        '''Uses FBP to solve for the fires' rate of spread values'''
-        input_list = [self.fuel_type, inputs.month, inputs.day,
-                      inputs.min_fmc_month, inputs.min_fmc_day, self.latitude,
-                      self.longitude, self.elevation, inputs.FFMC, inputs.BUI,
-                      self.slope, self.slope_azimult, inputs.wind_speed,
-                      inputs.wind_direction, inputs.PC, inputs.PDF, inputs.GFL,
-                      inputs.PCUR, self.time, 1]
-        output_list = fbpline2.FBP_Calculate(input_list)
-        return output_list[39], output_list[45], output_list[51],output_list[19]
-
-
     def growth(self): #assumed fires grow linearly
         if self.time < self.time_at_ignition:
-            self.head_length = -1.0
-            self.flank_length = -1.0
-            self.back_length = -1.0
-            self.perimeter = -1.0
+            self.radius = -1.0
             self.size = -1.0
         else:
-            self.head_length = ((self.time - self.time_at_ignition) *
-                                self.head_ros)
-            self.flank_length = ((self.time - self.time_at_ignition) *
-                               self.flank_ros)
-            self.back_length = ((self.time - self.time_at_ignition) *
-                                self.back_ros)
-            self.size = area_ellipse((self.head_length + self.back_length) / 2,\
-                                     self.flank_length)
-            self.perimeter = perimeter_ellipse((self.head_length +
-                                                self.back_length) / 2,
-                                               self.flank_length)
+            self.radius = (self.time - self.time_at_ignition) \
+                                  * self.rate_of_growth
+            self.size = float(math.pi * (self.radius) ** 2)
         
 
 
     def detect(self): #Updates detected and report size + radius
-        temp = self.time
-        self.time = self.time_at_detection
-        self.growth()
-        self.size_at_detection = self.size
-        self.perimeter_at_detection = self.perimeter
-        self.time = self.time_at_report
-        self.growth()
-        self.size_at_report = self.size
-        self.perimeter_at_report = self.size
-        self.time = temp
-
+        self.radius_at_detection = self.rate_of_growth * \
+                                   (self.time_at_detection - \
+                                    self.time_at_ignition)
+        self.size_at_detection = math.pi * (self.radius_at_detection) ** 2
+        self.radius_at_report = self.rate_of_growth * \
+                                   (self.time_at_report - \
+                                    self.time_at_ignition)
+        self.size_at_report = math.pi * (self.radius_at_report) ** 2
     
     def print_attributes(self): #Print all of the fire's attributes
         print "Time Ignited: %.2f" %self.time_at_ignition
@@ -235,23 +189,21 @@ class Fire:
         print "Fire Was Detected:", self.detected
         if self.detected:
             print "Size When Detected: %.2f"  %self.size_at_detection
-            print "Perimeter When Detected: %.2f" %self.perimeter_at_detection
+            print "Radius When Detected: %.2f" %self.radius_at_detection
             print "Size When Reported: %.2f" %self.size_at_report
-            print "Perimeter When Reported: %.2f" %self.perimeter_at_report
-        print "Current Perimeter: %.2f" %self.perimeter
+            print "Radius When Reported: %.2f" %self.radius_at_report
+        print "Current Radius: %.2f" %self.radius
         print "Current Size: %.2f"  %self.size
         print "Largest Size: %.2f" %self.max_size
-        print "Largest Perimeter: %.2f" %self.max_perimeter
-        print "Head Rate of Growth %.4f" %self.head_ros
-        print "Flank Rate of Growth %.4f" %self.flank_ros
-        print "Back Rate of Growth %.4f" %self.back_ros
+        print "Largest Radius: %.2f" %self.max_radius
+        print "Rate of Growth %.4f" %self.rate_of_growth
         print "Fire Was Controlled:", self.controlled
         for x in range(len(self.size_at_airtanker_arrival)):
             try:
                 print "Size at Airtanker %d Arrival: %4.2f" \
                       %(x + 1, self.size_at_airtanker_arrival[x])
-                print "Perimeter at Airtanker %d Arrival: %4.2f" \
-                      %(x + 1, self.perimeter_at_airtanker_arrival[x])
+                print "Radius at Airtanker %d Arrival: %4.2f" \
+                      %(x + 1, self.radius_at_airtanker_arrival[x])
                 print "Time at Airtanker %d Arrival: %4.2f" \
                       %(x + 1, self.time_at_airtanker_arrival[x])
                 print "Time of Airtanker %d Return: %4.2f" \
@@ -281,9 +233,8 @@ class Statistics(): #Has many useful statistics as attributes
         self.average_control_time = []
     
 class Airtanker:
-    def __init__(self, cruising_airspeed, fight_airspeed, circling_speed,
-                 lat, lon, fly_when_dark, drop_type, size, fuel_capacity,
-                 fuel_consumption):
+    def __init__(self, cruising_airspeed, fight_airspeed, circling_speed,\
+                 max_flight_time, max_flight_distance, lat, lon):
         self.cruising_airspeed = cruising_airspeed #main flight speed
         self.fight_airspeed = fight_airspeed #flight speed when fighting fire
         self.circling_speed = circling_speed #fight speed when circling
@@ -295,11 +246,8 @@ class Airtanker:
         self.total_travel_distance = 0.0
         self.total_wait_time = 0.0
         self.total_fight_fire_time = 0.0
-        self.fly_when_dark = fly_when_dark
-        self.drop_type = drop_type #3 types salvo, trail and misc
-        self.size = size #small/large
-        self.fuel_capacity = fuel_capacity #cannot reach 0
-        self.fuel_consumption = fuel_consumption #Some units
+        self.max_flight_time = max_flight_time #max time fly w/o return a base
+        self.max_flight_distance = max_flight_distance #max distance w/o return
 
 class Base:
     def __init__(self, latitude, longitude, airtankers, airtankers_resource,\
@@ -320,10 +268,9 @@ class Lake: #Assumed circle
 
 
 class Forest_stand: #Records fuel type and slope of that part of forest
-    def __init__(self, fuel_type, slope, slope_azimult):
+    def __init__(self, fuel_type, slope):
         self.fuel_type = fuel_type
         self.slope = slope
-        self.slope_azimult = slope_azimult
 
 class Point: #Points to keep track of during simulation
     def __init__(self, latitude, longitude):
@@ -336,7 +283,6 @@ class Point: #Points to keep track of during simulation
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 def fires_per_day(ffmc): #number of fires in a day only based on FFMC
-    #NOT CURRENTLY USED
     '''Calculate the fires in a day based on ffmc'''
     if type(ffmc) != float and type(ffmc) != int:
         print "Invalid ffmc entered"
@@ -350,7 +296,7 @@ def fires_per_day(ffmc): #number of fires in a day only based on FFMC
 
 def mean_time_between_fires(fires_per_day): #used calculate fire ignition times
     '''Return mean time in minutes between fires'''
-    fires_per_hour = fires_per_day / 24.0 #OR 8.0?
+    fires_per_hour = fires_per_day / 8.0
     return  60.0 / fires_per_hour
 
 def distance_euc(x1, y1, x2, y2): #NOT USED
@@ -375,7 +321,7 @@ def obj_distance_euc(obj1, obj2): #Not used
     '''Return Euclidean distance between the objects'''
     distance = math.sqrt((obj1.longitude - obj2.longitude) ** 2 + \
                          (obj1.latitude - obj2.latitude) ** 2)
-    if isinstance(obj1, Fire): #Find fire to centre or...
+    if isinstance(obj1, Fire):
         pass
     if isinstance(obj2, Fire):
         pass
@@ -404,21 +350,83 @@ def obj_distance(obj1, obj2):
 
 def area_ellipse(major_axis, minor_axis):
     '''Return the area of an ellipse'''
-    area = math.pi * major_axis * minor_axis
-    return area
+    return math.pi * major_axis * minor_axis
 
 def perimeter_ellipse(major_axis, minor_axis):
     '''Return the approximate perimeter of an ellipse'''
     if major_axis >= minor_axis:
-        a, b = (float(major_axis), float(minor_axis))
+	a, b = float(major_axis), float(minor_axis)
     else:
-        a, b = (float(minor_axis), float(major_axis))
-    try:
-        h = (((a - b) ** 2) / ((a + b) ** 2))
-    except ZeroDivisionError:
-        return 0.0
+	a, b = float(minor_axis), float(major_axis)
+    h = (((a - b) ** 2) / ((a + b) ** 2))
     return math.pi * (a + b) * (1 + (3 * h) / (10 + math.sqrt(4 - 3 * h)))
 
+def calculate_rate_of_growth(fuel_type, slope, ISI, PDF):
+    '''For given fuel type, slope and ISI values, return the rate of growth
+    Most calculated from RSI = a[1 - e^((-b)(ISI))]^c for a,b,c depending on
+    the fuel type of the stand. Result in km/min'''
+    if type(ISI) != float and type(ISI) != int:
+        print "Invalid ISI value entered"
+        raise SystemExit
+    if fuel_type == "C1": #C1 Spruce-Lichen Woodland
+        return float((1.0 / 1000.0) * 90.0 * \
+                     ((1.0 - math.exp(-0.0649 * ISI)) ** 4.5))
+    elif fuel_type == "C2": #C2 Boreal Spruce
+        return float((1.0 / 1000.0) * 110.0 * \
+                     ((1.0 - math.exp(-0.0282 * ISI)) ** 1.5))
+    elif fuel_type == "C3": #C3 Mature Jackpine/Lodgepole Pine
+        return float((1.0 / 1000.0) * 110.0 * \
+                     ((1.0 - math.exp(-0.0444 * ISI)) ** 3.0))
+    elif fuel_type == "C4": #C4 Immature Jackpine/Lodgepole Pine
+        return float((1.0 / 1000.0) * 110.0 * \
+                     ((1.0 - math.exp(-0.0293 * ISI)) ** 1.5))
+    elif fuel_type == "C5": #C5 Red and White Pine
+        return float((1.0 / 1000.0) * 3.0 * \
+                     ((1.0 - math.exp(-0.0697 * ISI)) ** 4.0))
+    elif fuel_type == "C6": #C6 Pine Plantation
+        return float((1.0 / 1000.0) * 30.0 * \
+                     ((1.0 - math.exp(-0.0800 * ISI)) ** 3.0))
+    elif fuel_type == "C7": #C7 Ponderosa Pine/Douglas Fir
+        return float((1.0 / 1000.0) * 45.0 * \
+                     ((1.0 - math.exp(-0.0305 * ISI)) ** 2.0))
+    elif fuel_type == "D1": #D1 Leafless Aspen
+        return float((1.0 / 1000.0) * 30.0 * \
+                     ((1.0 - math.exp(-0.0232 * ISI)) ** 1.6))
+    elif fuel_type == "D2": #D2 Not Currently Implemented
+        return float((1.0 / 1000.0) * 110.0 * \
+                     ((1.0 - math.exp(-0.0282 * ISI)) ** 1.5))
+    elif fuel_type == "M1": #M1 Boreal Mixedwood - Leafless
+        return float((1.0 / 1000.0) * 110.0 * \
+                     ((1.0 - math.exp(-0.0282 * ISI)) ** 1.5))#INCORRECT
+    elif fuel_type == "M2": #M2 Boreal Mixedwood - Green
+        return float((1.0 / 1000.0) * 110.0 * \
+                     ((1.0 - math.exp(-0.0282 * ISI)) ** 1.5)) #INCORRECT
+    elif fuel_type == "M3": #M3 Dead B.Fir Mixedwood - Leafless
+        return float((1.0 / 1000.0) * 170.0 * math.exp(-35.0/PDF) * \
+                     ((1.0 - math.exp(-(0.082 * math.exp(-36.0/PDF)) * ISI)) **\
+                      (1.698 - (0.00303 * PDF))))
+    elif fuel_type == "M4": #M4 Dead B.Fir Mixedwood - Green
+        return float((1.0 / 1000.0) * 140.0 * math.exp(-33.5 / PDF) *\
+                     ((1.0 - math.exp(-0.0404 * ISI)) ** \
+                      (3.02 * math.exp(-0.00714 * PDF))))
+    elif fuel_type == "O1a": #O1a
+        return float((1.0 / 1000.0) * 110.0 * \
+                     ((1.0 - math.exp(-0.0282 * ISI)) ** 1.5))#INCORRECT
+    elif fuel_type == "O1b": #O1b
+        return float((1.0 / 1000.0) * 110.0 * \
+                     ((1.0 - math.exp(-0.0282 * ISI)) ** 1.5)) #INCORRECT
+    elif fuel_type == "S1": #S1 Jack Pine/Lodgepole Pine Slash
+        return float((1.0 / 1000.0) * 75.0 * \
+                     ((1.0 - math.exp(-0.0297 * ISI)) ** 1.3))
+    elif fuel_type == "S2": #S2 Spruce/Balsam Slash
+        return float((1.0 / 1000.0) * 40.0 * \
+                     ((1.0 - math.exp(-0.0438 * ISI)) ** 1.7))
+    elif fuel_type == "S3": #S3 Coastal Cedar/Hemlock/Douglas Fir Slash
+        return float((1.0 / 1000.0) * 55.0 * \
+                     ((1.0 - math.exp(-0.0829 * ISI)) ** 3.2))
+    print "Invalid fuel type entered"
+    raise SystemExit
+    return -1.0
 
 def generate_fueltype(): #Assumed uniform distribution of fueltypes in forest
     '''Use some probability distribution to return fueltypes'''
@@ -442,8 +450,7 @@ def create_forest(inputs): #Generate forest with random stands
     for x in range (inputs.num_rows):
         forest.append([])
         for y in range(inputs.num_columns):
-            forest[x].append(Forest_stand(generate_fueltype(),generate_slope(),
-                                          random.uniform(0, 360)))
+            forest[x].append(Forest_stand(generate_fueltype(),generate_slope()))
     return forest
 
 def get_stand_info(lat, lon, forest, inputs):
@@ -458,10 +465,9 @@ def get_stand_info(lat, lon, forest, inputs):
     if long_stand == 0:
         long_stand = 1
     return forest[lat_stand - 1][long_stand - 1].fuel_type, \
-        forest[lat_stand - 1][long_stand - 1].slope, \
-        forest[lat_stand - 1][long_stand - 1].slope_azimult
+        forest[lat_stand - 1][long_stand - 1].slope
 
-def create_fire(env, fires, forest, inputs,p_human):
+def create_fire(env, fires, forest, inputs):
     '''Randomly generates a fire and appends it to parameter fires'''
     ig_time = env.now
     detected = True
@@ -476,23 +482,14 @@ def create_fire(env, fires, forest, inputs,p_human):
         report_time = -1.0
     lat = random.uniform(inputs.min_lat, inputs.max_lat)
     lon = random.uniform(inputs.min_long, inputs.max_long)
-    fuel_type, slope, slope_azimult = get_stand_info(lat, lon, forest, inputs)
-    if random.random() < p_human:
-        cause = "human"
-    else:
-        cause = "lightning"
+    fuel_type, slope = get_stand_info(lat, lon, forest, inputs)
     fires.append(Fire(ig_time, detect_time, report_time, slope, env.now, \
-                      lat, lon, fuel_type, detected, slope_azimult, inputs))
+                      lat, lon, fuel_type, detected, inputs.ISI, inputs.PDF))
     if detected:
         fires[-1].detect()
-    else:
-        fires[-1].size_at_detection = 0.0
-        fires[-1].perimeter_at_detection = 0.0
-        fires[-1].size_at_report = 0.0
-        fires[-1].perimeter_at_report = 0.0
     fires[-1].time = inputs.length_run #Initally set to grow til end of day
     fires[-1].growth()
-    fires[-1].max_perimeter = fires[-1].perimeter
+    fires[-1].max_radius = fires[-1].radius
     fires[-1].max_size = fires[-1].size
 
 def create_points(inputs):
@@ -526,16 +523,10 @@ def create_airtankers(base_num, env, inputs):
             circling = float(inputs.base_airtankers_circling[base_num][x])
             lat = float(inputs.bases_lat[base_num])
             lon = float(inputs.bases_long[base_num])
-            ###CHANGE THESE###
-            fly_after_dark = False
-            drop_type = "s"
-            size = "s"
-            ###CHANGE THESE###
-            fuel_cap = float(inputs.base_airtankers_fuel_cap[base_num][x])
-            fuel_con = float(inputs.base_airtankers_fuel_con[base_num][x])
-            airtankers.append(Airtanker(cruising, fight, circling, lat, lon,
-                                        fly_after_dark, drop_type, size,
-                                        fuel_cap, fuel_con))
+            max_time = float(inputs.base_airtankers_max_time[base_num][x])
+            max_distance=float(inputs.base_airtankers_max_distance[base_num][x])
+            airtankers.append(Airtanker(cruising, fight, circling, max_time, \
+                                        max_distance, lat, lon))
             airtankers_resource.append(simpy.Resource(env, capacity=1))
         except IndexError:
             print "Not enough airtanker data entered"
@@ -561,16 +552,10 @@ def create_bird_dogs(base_num, env, inputs):
             circling = float(inputs.base_bird_dogs_circling[base_num][x])
             lat = float(inputs.bases_lat[base_num])
             lon = float(inputs.bases_lon[base_num])
-            ###CHANGE####
-            fly_after_dark = False
-            drop_type = 'm'
-            size = 's'
-            ###CHANGE###
-            fuel_cap = float(inputs.base_bird_dogs_max_time[base_num][x])
-            fuel_con =float(inputs.base_bird_dogs_max_distance[base_num][x])
-            bird_dogs.append(Airtanker(cruising, fight, circling, lat, lon,
-                                       fly_after_dark, drop_type, size,
-                                       fuel_cap, fuel_con))
+            max_time = float(inputs.base_bird_dogs_max_time[base_num][x])
+            max_distance =float(inputs.base_bird_dogs_max_distance[base_num][x])
+            bird_dogs.append(Airtanker(cruising, fight, circling, max_time, \
+                                        max_distance, lat, lon))
         except IndexError:
             print "Not enough bird dog data entered"
             raise SystemExit
@@ -659,10 +644,7 @@ def update_statistics(stats, fires, bases, points): #add bases statistics
     report_time = report_time / detection_rate
     detection_rate = detection_rate / len(fires)
     controlled_rate = controlled_rate / len(fires)
-    if controlled_rate != 0:
-        control_time = control_time / (controlled_rate * len(fires))
-    else:
-        control_time = 0
+    control_time = control_time / (controlled_rate * len(fires))
     #Calculate airtanker stats
     count = 0
     for x in range(len(bases)):
@@ -680,10 +662,6 @@ def update_statistics(stats, fires, bases, points): #add bases statistics
     except ZeroDivisionError:
         pass
     #Update stats variable by appending to stats variable
-    try:
-        wait_time = wait_time / (detection_rate * len(fires))
-    except ZeroDivisionError:
-        wait_time = 0
     stats.average_max_size.append(max_size)
     stats.average_detection_size.append(detection_size)
     stats.average_report_size.append(report_size)
@@ -695,7 +673,7 @@ def update_statistics(stats, fires, bases, points): #add bases statistics
     stats.controlled_rate.append(controlled_rate)
     stats.average_travel_time.append(travel_time)
     stats.average_travel_distance.append(travel_distance)
-    stats.average_wait_time.append(wait_time)
+    stats.average_wait_time.append(wait_time / (detection_rate * len(fires)))
     stats.average_control_time.append(control_time)
     stats.average_fight_fire_time.append(fight_fire_time)
     update_points(fires, points)
@@ -742,10 +720,7 @@ def update_statistics_small(stats, fires, bases, points): #Use less memory
     report_time = report_time / detection_rate
     detection_rate = detection_rate / len(fires)
     controlled_rate = controlled_rate / len(fires)
-    if controlled_rate != 0:
-        control_time = control_time / (controlled_rate * len(fires))
-    else:
-        control_time = 0.0
+    control_time = control_time / (controlled_rate * len(fires))
     #Calculate airtanker stats
     count = 0
     for x in range(len(bases)):
@@ -891,51 +866,38 @@ def update_points(fires, points):
     for x in range(len(points)):
         points[x].burned.append(0.0)
         for y in range(len(fires)):
-            pass
-            #fix for non-circular fires
-##            if obj_distance(fires[y], points[x]) <= fires[y].max_radius:
-##                points[x].burned[-1] = 1.0
-##                break
+            if obj_distance(fires[y], points[x]) <= fires[y].max_radius:
+                points[x].burned[-1] = 1.0
+                break
 
                 
 
-def fire_generator(env, fires, forest, inputs): #fire gen process
+def fire_generator(env, fires, forest, inputs): #fire generation process
     '''Generates a fire every ___ time'''
     while True:
-        num_fires = inputs.human_fires_day + inputs.lightning_fires_day
-        wait_time = random.expovariate(1.0/mean_time_between_fires(num_fires))
+        wait_time = random.expovariate(1.0/mean_time_between_fires(\
+            fires_per_day(inputs.FFMC)))
         yield env.timeout(wait_time)
-        create_fire(env, fires, forest, inputs,inputs.human_fires_day/num_fires)
+        create_fire(env, fires, forest, inputs)
 
-
-def at_control_fire_time(env, fire, airtanker):
-    '''Determines amount of time airtanker spends controlling the fire'''
-    time_yield = 100
-    yield env.timeout(time_yield)
-    airtanker.total_fight_fire_time += time_yield
-
-def at_finish_fire_time(env, fire, airtanker):
-    '''Determines amount of time airtanker spends finishing the fire'''
+def fight_fire_time(env, fire, airtanker):
+    '''Determines amount of time airtanker spends fighting the fire for'''
     time_yield = 100
     yield env.timeout(time_yield)
     airtanker.total_fight_fire_time += time_yield
 
 def fight_fire(env, fire, airtanker, inputs):
     '''Simpy process that is called when an airtanker arrives at a fire'''
-    yield env.process(at_control_fire_time(env, fire, airtanker))
     fire.time = env.now
     fire.growth()
-    fire.max_perimeter = fire.perimeter
+    fire.max_radius = fire.radius
     fire.max_size = fire.size
+    yield env.process(fight_fire_time(env, fire, airtanker))
     fire.controlled = True
     fire.time_at_controlled = env.now
-    yield env.process(at_finish_fire_time(env, fire, airtanker))
-    fire.time = env.now
+    fire.time = inputs.length_run
     fire.size = 0.0
-    fire.perimeter = 0.0
-    fire.head_length = 0.0
-    fire.flank_length = 0.0
-    fire.back_length = 0.0
+    fire.radius = 0.0
 
 def select_airtanker(fire, bases):
     '''Returns which base and airtanker will be used to fight fire
@@ -969,7 +931,7 @@ def airtanker_arrival(env, fire, airtanker):
     fire.time_at_airtanker_arrival.append(env.now)
     fire.time = env.now
     fire.growth()
-    fire.perimeter_at_airtanker_arrival.append(fire.perimeter)
+    fire.radius_at_airtanker_arrival.append(fire.radius)
     fire.size_at_airtanker_arrival.append(fire.size)
 
 def return_airtanker_process(env, bases, airtanker, airtanker_resource, fires):
@@ -984,9 +946,6 @@ def return_airtanker_process(env, bases, airtanker, airtanker_resource, fires):
 def check_fuel(env, bases, airtanker):
     '''Checks current distance/time travelled and if airtanker needs refuel'''
     pass
-
-def calc_needed_fuel(env, bases, airtanker):
-    'Return the necessary fuel to go to the fire'''
 
 def dispatch_airtanker(env, fire, bases, fires, inputs):
     '''Requests an airtanker, then calls fight_fire process'''
@@ -1250,9 +1209,9 @@ def define_undefined(inputs):
     if inputs.FFMC == None:
         print "Value of 80.0 assigned to FFMC\n"
         inputs.FFMC = 80.0
-##    if inputs.ISI == None:
-##        print "Value of 15.0 assigned to ISI\n"
-##        inputs.ISI == 15.0
+    if inputs.ISI == None:
+        print "Value of 15.0 assigned to ISI\n"
+        inputs.ISI == 15.0
     if inputs.min_lat == None:
         print "Value of 0 assigned to minimum latitude\n"
         inputs.min_lat = 0
@@ -1310,14 +1269,14 @@ def check_inputs(inputs):
     else:
         print "Invalid FFMC Value Entered"
         return -2
-##    if type(inputs.ISI) == float or type(inputs.ISI) == int:
-##        inputs.ISI = float(inputs.ISI)
-##        if inputs.ISI < 0 or inputs.ISI > 50:
-##            print "\nISI Value Out of Range\n\n"
-##            return -1
-##    else:
-##        print "Invalid ISI Value Entered\n\n"
-##        return -2
+    if type(inputs.ISI) == float or type(inputs.ISI) == int:
+        inputs.ISI = float(inputs.ISI)
+        if inputs.ISI < 0 or inputs.ISI > 50:
+            print "\nISI Value Out of Range\n\n"
+            return -1
+    else:
+        print "Invalid ISI Value Entered\n\n"
+        return -2
     if type(inputs.min_lat) == float or type(inputs.min_lat) == int:
         inputs.min_lat = float(inputs.min_lat)
         if inputs.min_lat < -90.0 or inputs.min_lat > 90.0:
@@ -1634,17 +1593,11 @@ def main_func(read_only_values):
 #                                Run Simulation
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 if __name__ == '__main__':
-    list1 = [0 for x in range (44)]
+    list1 = [0 for x in range (32)]
     list1[0] = 1
     list1[1] = 1440.0
-    list1[3], list1[4] = 5, 5
-    list1[6], list1[7] = False, True
-    list1[21], list1[23] = 85, 85
-    list1[24], list1[25] = 10, 10
-    list1[26] = 0
-    for y in range(27, 44):
+    for y in range(17, 29):
         list1[y] = []
-    list1[41] = 0
     main_func(list1)
         
     

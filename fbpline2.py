@@ -24,7 +24,7 @@ def FBP_Calculate(var):
     month = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
     #Now assign numerical input data to structure to pass to calculate function
     for x in range(len(var)): #change all unentered data to a value of -9
-        if var[x] == '' or var[x] == '-9':
+        if var[x] == '' or var[x] == '-9' or var[x] == None:
             var[x] = -9
     if var[1] == -9:
         var[1] = 0

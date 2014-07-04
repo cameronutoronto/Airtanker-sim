@@ -24,8 +24,8 @@ class Redirect_Stdout(): #Redirect Stdout to textctrl
         
 class mainwindow(wx.Frame):
     def __init__(self, parent, title):
-        self.input = ['' for x in range(32)] #Save user entered values
-        self.input_fixed = [None for x in range(32)]
+        self.input = ['' for x in range(44)] #Save user entered values
+        self.input_fixed = [None for x in range(44)]
         self.dirname = ''
         self.filename = ''
         #Creating the window, setting it blue, and adding a text box to it
@@ -39,10 +39,10 @@ class mainwindow(wx.Frame):
         self.gauge = wx.Gauge(self) #loading bar
         self.stop_load_bar_flag = False
         self.Bind(wx.EVT_CLOSE, self.OnExit) #bind x button
-        self.input[2] = 'False'
-        self.input[3] = 'False'
-        self.input_fixed[2] = False
-        self.input_fixed[3] = False
+        self.input[6] = 'False'
+        self.input[7] = 'False'
+        self.input_fixed[6] = False
+        self.input_fixed[7] = False
 
 ################################################################################
 #                                   MENU
@@ -116,121 +116,149 @@ class mainwindow(wx.Frame):
         self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 1), self.length_run)
         self.make_bold(self.length_run_prompt)
 
+        #Time Until Darkness
+        self.time_dark_prompt = wx.StaticText(self, label = "Time Until Dark: ")
+        self.time_dark = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.time_dark_prompt, pos = (1, 4))
+        grid.Add(self.time_dark, pos = (1, 5))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 2), self.time_dark)
+        self.make_bold(self.time_dark_prompt)
+
+        #Lightning Fires a Day
+        self.lightning_fires_prompt = wx.StaticText(self, label = \
+                                                    "Average Lightning Fires: ")
+        self.lightning_fires = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.lightning_fires_prompt, pos = (2, 0))
+        grid.Add(self.lightning_fires, pos = (2, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 3), \
+                  self.lightning_fires)
+        self.make_bold(self.lightning_fires_prompt)
+
+        #Human Fires a Day
+        self.human_fires_prompt = wx.StaticText(self, label = \
+                                                "Average Human Fires: ")
+        self.human_fires = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.human_fires_prompt, pos = (2, 2))
+        grid.Add(self.human_fires, pos = (2, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 4), self.human_fires)
+        self.make_bold(self.human_fires_prompt)
+
+        #Check Distance
+        self.check_dist_prompt = wx.StaticText(self, label = "Check Distance: ")
+        self.check_dist = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.check_dist_prompt, pos = (2, 4))
+        grid.Add(self.check_dist, pos = (2, 5))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 5), self.check_dist)
+        self.make_bold(self.check_dist_prompt)
+
         #Show fire attributes
         self.show_fire_attributes_prompt = wx.StaticText\
                                            (self,label="Show Fire Attributes: ")
-        #self.show_fire_attributes = wx.TextCtrl(self,value="", size = (100, -1)
         self.show_fire_attributes = wx.CheckBox(self, style=wx.CHK_2STATE,
                                                 name = "Show Fire Attributes")
-        grid.Add(self.show_fire_attributes_prompt, pos = (2, 0))
-        grid.Add(self.show_fire_attributes, pos = (2, 1))
-        #self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 2),
-                  #self.show_fire_attributes)
+        grid.Add(self.show_fire_attributes_prompt, pos = (3, 0))
+        grid.Add(self.show_fire_attributes, pos = (3, 1))
         self.Bind(wx.EVT_CHECKBOX, self.show_fires, self.show_fire_attributes)
         self.make_bold(self.show_fire_attributes_prompt)
 
         #Save Daily Averages
         self.save_daily_avgs_prompt = wx.StaticText\
                                       (self, label = "Save Daily Averages: ")
-        #self.save_daily_avgs = wx.TextCtrl(self, value="", size = (100, -1))
         self.save_daily_avgs = wx.CheckBox(self, style = wx.CHK_2STATE,
                                            name = "Save Daily Averages")
-        grid.Add(self.save_daily_avgs_prompt, pos = (2, 2))
-        grid.Add(self.save_daily_avgs, pos = (2, 3))
-        #self.Bind(wx.EVT_TEXT,lambda x: self.EvtText(x,3),self.save_daily_avgs)
+        grid.Add(self.save_daily_avgs_prompt, pos = (3, 2))
+        grid.Add(self.save_daily_avgs, pos = (3, 3))
         self.Bind(wx.EVT_CHECKBOX, self.save_daily, self.save_daily_avgs)
         self.make_bold(self.save_daily_avgs_prompt)
 
-        #Weather
-        self.weather_title =wx.StaticText(self, label ="WEATHER")
-        grid.Add(self.weather_title, pos=(3, 2))
-        self.make_bold(self.weather_title)
+        #FBP
+        self.fbp_title =wx.StaticText(self, label ="FBP INPUTS")
+        grid.Add(self.fbp_title, pos=(4, 2))
+        self.make_bold(self.fbp_title)
+
+        #Month
+        self.month_prompt = wx.StaticText(self, label = "Month: ")
+        self.month = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.month_prompt, pos = (5, 0))
+        grid.Add(self.month, pos = (5, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 8), self.month)
+        self.make_bold(self.month_prompt)
+
+        #Day
+        self.day_prompt = wx.StaticText(self, label = "Day: ")
+        self.day = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.day_prompt, pos = (5, 2))
+        grid.Add(self.day, pos = (5, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 9), self.day)
+        self.make_bold(self.day_prompt)
+
+        #Min FMC Month
+        self.min_month_prompt = wx.StaticText(self, label = "Min FMC Month: ")
+        self.min_month = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.min_month_prompt, pos = (6, 0))
+        grid.Add(self.min_month, pos = (6, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 10), self.min_month)
+        self.make_bold(self.min_month_prompt)
+
+        #Min FMC Day
+        self.min_day_prompt = wx.StaticText(self, label = "Min FMC Day: ")
+        self.min_day = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.min_day_prompt, pos = (6, 2))
+        grid.Add(self.min_day, pos = (6, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 11), self.min_day)
+        self.make_bold(self.min_day_prompt)
 
         #FFMC
         self.ffmc_prompt = wx.StaticText(self, label = "FFMC: ")
         self.ffmc = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.ffmc_prompt, pos = (4, 0))
-        grid.Add(self.ffmc, pos = (4, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 4), self.ffmc)
+        grid.Add(self.ffmc_prompt, pos = (5, 4))
+        grid.Add(self.ffmc, pos = (5, 5))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 12), self.ffmc)
         self.make_bold(self.ffmc_prompt)
 
-        #ISI
-        self.isi_prompt = wx.StaticText(self, label = "ISI: ")
-        self.isi = wx.TextCtrl(self, value="", \
+        #BUI
+        self.bui_prompt = wx.StaticText(self, label = "BUI: ")
+        self.bui = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.isi_prompt, pos = (5, 0))
-        grid.Add(self.isi, pos = (5, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 5), self.isi)
-        self.make_bold(self.isi_prompt)
+        grid.Add(self.bui_prompt, pos = (6, 4))
+        grid.Add(self.bui, pos = (6, 5))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 13), self.bui)
+        self.make_bold(self.bui_prompt)
 
-        #Forest
-        self.forest_title =wx.StaticText(self, label ="FOREST")
-        grid.Add(self.forest_title, pos=(6, 2))
-        self.make_bold(self.forest_title)
-
-        #Minimum Latitude
-        self.min_lat_prompt = wx.StaticText(self, label = "Minimum Latitude: ")
-        self.min_lat = wx.TextCtrl(self, value="", \
+        #Wind Speed
+        self.ws_prompt = wx.StaticText(self, label = "Wind Speed: ")
+        self.ws = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.min_lat_prompt, pos = (7, 0))
-        grid.Add(self.min_lat, pos = (7, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 6), self.min_lat)
-        self.make_bold(self.min_lat_prompt)
+        grid.Add(self.ws_prompt, pos = (7, 0))
+        grid.Add(self.ws, pos = (7, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 14), self.ws)
+        self.make_bold(self.ws_prompt)
 
-        #Maximum Latitude
-        self.max_lat_prompt = wx.StaticText(self, label = "Maximum Latitude: ")
-        self.max_lat = wx.TextCtrl(self, value="", \
+        #Wind Direction
+        self.w_dir_prompt = wx.StaticText(self, label = "Wind Direction: ")
+        self.w_dir = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.max_lat_prompt, pos = (7, 2))
-        grid.Add(self.max_lat, pos = (7, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 7), self.max_lat)
-        self.make_bold(self.max_lat_prompt)
-
-        #Minimum Longitude
-        self.min_long_prompt = wx.StaticText(self,label = "Minimum Longitude: ")
-        self.min_long = wx.TextCtrl(self, value="", \
-                                      size = (100, -1))
-        grid.Add(self.min_long_prompt, pos = (8, 0))
-        grid.Add(self.min_long, pos = (8, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 8), self.min_long)
-        self.make_bold(self.min_long_prompt)
-
-        #Maximum Longitude
-        self.max_long_prompt = wx.StaticText(self, label ="Maximum Longitude: ")
-        self.max_long = wx.TextCtrl(self, value="", \
-                                      size = (100, -1))
-        grid.Add(self.max_long_prompt, pos = (8, 2))
-        grid.Add(self.max_long, pos = (8, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 9), self.max_long)
-        self.make_bold(self.max_long_prompt)
-
-        #Number of Rows
-        self.num_rows_prompt = wx.StaticText(self, label = "Number of Rows: ")
-        self.num_rows = wx.TextCtrl(self, value="", \
-                                      size = (100, -1))
-        grid.Add(self.num_rows_prompt, pos = (9, 0))
-        grid.Add(self.num_rows, pos = (9, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 10), self.num_rows)
-        self.make_bold(self.num_rows_prompt)
-
-        #Number of Columns
-        self.num_columns_prompt = wx.StaticText(self, label = \
-                                                "Number of Columns: ")
-        self.num_columns = wx.TextCtrl(self, value="", \
-                                      size = (100, -1))
-        grid.Add(self.num_columns_prompt, pos = (9, 2))
-        grid.Add(self.num_columns, pos = (9, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 11), self.num_columns)
-        self.make_bold(self.num_columns_prompt)
+        grid.Add(self.w_dir_prompt, pos = (7, 2))
+        grid.Add(self.w_dir, pos = (7, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 15), self.w_dir)
+        self.make_bold(self.w_dir_prompt)
 
         #Percent Conifer
         self.p_con_prompt = wx.StaticText(self, label = "Percent Conifer: ")
         self.p_con = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.p_con_prompt, pos = (10, 0))
-        grid.Add(self.p_con, pos = (10, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 12), self.p_con)
+        grid.Add(self.p_con_prompt, pos = (7, 4))
+        grid.Add(self.p_con, pos = (7, 5))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 16), self.p_con)
         self.make_bold(self.p_con_prompt)
 
         #Percent Dead Fir
@@ -238,41 +266,128 @@ class mainwindow(wx.Frame):
                                                "Percent Dead Fir: ")
         self.p_dead_fir = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.p_dead_fir_prompt, pos = (10, 2))
-        grid.Add(self.p_dead_fir, pos = (10, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 13), self.p_dead_fir)
+        grid.Add(self.p_dead_fir_prompt, pos = (8, 0))
+        grid.Add(self.p_dead_fir, pos = (8, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 17), self.p_dead_fir)
         self.make_bold(self.p_dead_fir_prompt)
+
+        #Grass Fuel Load
+        self.gfl_prompt = wx.StaticText(self, label = "Grass Fuel Load: ")
+        self.gfl = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.gfl_prompt, pos = (8, 2))
+        grid.Add(self.gfl, pos = (8, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 18), self.gfl)
+        self.make_bold(self.gfl_prompt)
+
+        #Percent Dead Fir
+        self.p_cur_prompt = wx.StaticText(self, label = "Percent Cured: ")
+        self.p_cur = wx.TextCtrl(self, value="", size = (100, -1))
+        grid.Add(self.p_cur_prompt, pos = (8, 4))
+        grid.Add(self.p_cur, pos = (8, 5))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 19), self.p_cur)
+        self.make_bold(self.p_cur_prompt)
+
+        #ISI
+##        self.isi_prompt = wx.StaticText(self, label = "ISI: ")
+##        self.isi = wx.TextCtrl(self, value="", \
+##                                      size = (100, -1))
+##        grid.Add(self.isi_prompt, pos = (5, 0))
+##        grid.Add(self.isi, pos = (5, 1))
+##        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 5), self.isi)
+##        self.make_bold(self.isi_prompt)
+
+        #Forest
+        self.forest_title =wx.StaticText(self, label ="FOREST")
+        grid.Add(self.forest_title, pos=(9, 2))
+        self.make_bold(self.forest_title)
+
+        #Minimum Latitude
+        self.min_lat_prompt = wx.StaticText(self, label = "Minimum Latitude: ")
+        self.min_lat = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.min_lat_prompt, pos = (10, 0))
+        grid.Add(self.min_lat, pos = (10, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 20), self.min_lat)
+        self.make_bold(self.min_lat_prompt)
+
+        #Maximum Latitude
+        self.max_lat_prompt = wx.StaticText(self, label = "Maximum Latitude: ")
+        self.max_lat = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.max_lat_prompt, pos = (10, 2))
+        grid.Add(self.max_lat, pos = (10, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 21), self.max_lat)
+        self.make_bold(self.max_lat_prompt)
+
+        #Minimum Longitude
+        self.min_long_prompt = wx.StaticText(self,label = "Minimum Longitude: ")
+        self.min_long = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.min_long_prompt, pos = (11, 0))
+        grid.Add(self.min_long, pos = (11, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 22), self.min_long)
+        self.make_bold(self.min_long_prompt)
+
+        #Maximum Longitude
+        self.max_long_prompt = wx.StaticText(self, label ="Maximum Longitude: ")
+        self.max_long = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.max_long_prompt, pos = (11, 2))
+        grid.Add(self.max_long, pos = (11, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 23), self.max_long)
+        self.make_bold(self.max_long_prompt)
+
+        #Number of Rows
+        self.num_rows_prompt = wx.StaticText(self, label = "Number of Rows: ")
+        self.num_rows = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.num_rows_prompt, pos = (12, 0))
+        grid.Add(self.num_rows, pos = (12, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 24), self.num_rows)
+        self.make_bold(self.num_rows_prompt)
+
+        #Number of Columns
+        self.num_columns_prompt = wx.StaticText(self, label = \
+                                                "Number of Columns: ")
+        self.num_columns = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.num_columns_prompt, pos = (12, 2))
+        grid.Add(self.num_columns, pos = (12, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 25), self.num_columns)
+        self.make_bold(self.num_columns_prompt)
+
 
         #Bases
         self.bases_title =wx.StaticText(self, label ="BASES")
-        grid.Add(self.bases_title, pos=(11, 2))
+        grid.Add(self.bases_title, pos=(13, 2))
         self.make_bold(self.bases_title)
 
         #Number of Bases
         self.num_bases_prompt = wx.StaticText(self, label = "Number of Bases: ")
         self.num_bases = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.num_bases_prompt, pos = (12, 0))
-        grid.Add(self.num_bases, pos = (12, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 14), self.num_bases)
+        grid.Add(self.num_bases_prompt, pos = (14, 0))
+        grid.Add(self.num_bases, pos = (14, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 26), self.num_bases)
         self.make_bold(self.num_bases_prompt)
 
         #Bases Latitude
         self.bases_lat_prompt = wx.StaticText(self, label = "Bases Latitude: ")
         self.bases_lat = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.bases_lat_prompt, pos = (12, 2))
-        grid.Add(self.bases_lat, pos = (12, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 15), self.bases_lat)
+        grid.Add(self.bases_lat_prompt, pos = (14, 2))
+        grid.Add(self.bases_lat, pos = (14, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 27), self.bases_lat)
         self.make_bold(self.bases_lat_prompt)
 
         #Bases Longtitude
         self.bases_long_prompt = wx.StaticText(self, label ="Bases Longitude: ")
         self.bases_long = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.bases_long_prompt, pos = (12, 4))
-        grid.Add(self.bases_long, pos = (12, 5))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 16), self.bases_long)
+        grid.Add(self.bases_long_prompt, pos = (14, 4))
+        grid.Add(self.bases_long, pos = (14, 5))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 28), self.bases_long)
         self.make_bold(self.bases_long_prompt)
 
         #Base Number of Airtankers
@@ -280,9 +395,9 @@ class mainwindow(wx.Frame):
                                   (self, label = "Base Number of Airtankers: ")
         self.base_num_at = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.base_num_at_prompt, pos = (13, 0))
-        grid.Add(self.base_num_at, pos = (13, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 17), self.base_num_at)
+        grid.Add(self.base_num_at_prompt, pos = (15, 0))
+        grid.Add(self.base_num_at, pos = (15, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 29), self.base_num_at)
         self.make_bold(self.base_num_at_prompt)
 
         #Base Number of Bird Dogs
@@ -290,14 +405,14 @@ class mainwindow(wx.Frame):
                                   (self, label = "Base Number of Bird Dogs: ")
         self.base_num_bd = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.base_num_bd_prompt, pos = (13, 2))
-        grid.Add(self.base_num_bd, pos = (13, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 18), self.base_num_bd)
+        grid.Add(self.base_num_bd_prompt, pos = (15, 2))
+        grid.Add(self.base_num_bd, pos = (15, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 30), self.base_num_bd)
         self.make_bold(self.base_num_bd_prompt)
 
         #Speeds
         self.speeds_title =wx.StaticText(self, label ="AIRCRAFT SPEEDS(km/m)")
-        grid.Add(self.speeds_title, pos=(14, 2))
+        grid.Add(self.speeds_title, pos=(16, 2))
         self.make_bold(self.speeds_title)
 
 
@@ -306,9 +421,9 @@ class mainwindow(wx.Frame):
                                          (self, label = "Airtanker Cruising: ")
         self.airtanker_cruising = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.airtanker_cruising_prompt, pos = (15, 0))
-        grid.Add(self.airtanker_cruising, pos = (15, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 19), \
+        grid.Add(self.airtanker_cruising_prompt, pos = (17, 0))
+        grid.Add(self.airtanker_cruising, pos = (17, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 31), \
                   self.airtanker_cruising)
         self.make_bold(self.airtanker_cruising_prompt)
 
@@ -317,9 +432,9 @@ class mainwindow(wx.Frame):
                                       (self, label = "Airtanker Fight: ")
         self.airtanker_fight = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.airtanker_fight_prompt, pos = (15, 2))
-        grid.Add(self.airtanker_fight, pos = (15, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 20), \
+        grid.Add(self.airtanker_fight_prompt, pos = (17, 2))
+        grid.Add(self.airtanker_fight, pos = (17, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 32), \
                   self.airtanker_fight)
         self.make_bold(self.airtanker_fight_prompt)
 
@@ -329,9 +444,9 @@ class mainwindow(wx.Frame):
                                                      "Airtanker Circling: ")
         self.airtanker_circling = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.airtanker_circling_prompt, pos = (15, 4))
-        grid.Add(self.airtanker_circling, pos = (15, 5))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 21), \
+        grid.Add(self.airtanker_circling_prompt, pos = (17, 4))
+        grid.Add(self.airtanker_circling, pos = (17, 5))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 33), \
                   self.airtanker_circling)
         self.make_bold(self.airtanker_circling_prompt)
 
@@ -340,9 +455,9 @@ class mainwindow(wx.Frame):
                                          (self, label = "Bird Dog Cruising: ")
         self.bird_dog_cruising = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.bird_dog_cruising_prompt, pos = (16, 0))
-        grid.Add(self.bird_dog_cruising, pos = (16, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 22), \
+        grid.Add(self.bird_dog_cruising_prompt, pos = (18, 0))
+        grid.Add(self.bird_dog_cruising, pos = (18, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 34), \
                   self.bird_dog_cruising)
         self.make_bold(self.bird_dog_cruising_prompt)
 
@@ -351,9 +466,9 @@ class mainwindow(wx.Frame):
                                       (self, label = "Bird Dog Fight: ")
         self.bird_dog_fight = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.bird_dog_fight_prompt, pos = (16, 2))
-        grid.Add(self.bird_dog_fight, pos = (16, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 23), \
+        grid.Add(self.bird_dog_fight_prompt, pos = (18, 2))
+        grid.Add(self.bird_dog_fight, pos = (18, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 35), \
                   self.bird_dog_fight)
         self.make_bold(self.bird_dog_fight_prompt)
 
@@ -363,58 +478,103 @@ class mainwindow(wx.Frame):
                                                      "Bird Dog Circling: ")
         self.bird_dog_circling = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.bird_dog_circling_prompt, pos = (16, 4))
-        grid.Add(self.bird_dog_circling, pos = (16, 5))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 24), \
+        grid.Add(self.bird_dog_circling_prompt, pos = (18, 4))
+        grid.Add(self.bird_dog_circling, pos = (18, 5))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 36), \
                   self.bird_dog_circling)
         self.make_bold(self.bird_dog_circling_prompt)
 
-        #Airtanker Max Time
-        self.max_time_at_prompt = wx.StaticText\
-                                      (self, label = "Airtanker Max Time: ")
-        self.max_time_at = wx.TextCtrl(self, value="", \
-                                      size = (100, -1))
-        grid.Add(self.max_time_at_prompt, pos = (17, 0))
-        grid.Add(self.max_time_at, pos = (17, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 25), \
-                  self.max_time_at)
-        self.make_bold(self.max_time_at_prompt)
+##        #Airtanker Max Time
+##        self.max_time_at_prompt = wx.StaticText\
+##                                      (self, label = "Airtanker Max Time: ")
+##        self.max_time_at = wx.TextCtrl(self, value="", \
+##                                      size = (100, -1))
+##        grid.Add(self.max_time_at_prompt, pos = (17, 0))
+##        grid.Add(self.max_time_at, pos = (17, 1))
+##        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 25), \
+##                  self.max_time_at)
+##        self.make_bold(self.max_time_at_prompt)
+##
+##        #Airtanker Max Distance
+##        self.max_distance_at_prompt = wx.StaticText\
+##                                      (self, label = "Airtanker Max Distance: ")
+##        self.max_distance_at = wx.TextCtrl(self, value="", \
+##                                      size = (100, -1))
+##        grid.Add(self.max_distance_at_prompt, pos = (17, 2))
+##        grid.Add(self.max_distance_at, pos = (17, 3))
+##        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 26), \
+##                  self.max_distance_at)
+##        self.make_bold(self.max_distance_at_prompt)
+##
+##        #Bird Dog Max Time
+##        self.max_time_bd_prompt = wx.StaticText\
+##                                  (self, label = "Bird Dog Max Time: ")
+##        self.max_time_bd = wx.TextCtrl(self, value="", \
+##                                      size = (100, -1))
+##        grid.Add(self.max_time_bd_prompt, pos = (18, 0))
+##        grid.Add(self.max_time_bd, pos = (18, 1))
+##        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 27), self.max_time_bd)
+##        self.make_bold(self.max_time_bd_prompt)
+##
+##        #Bird Dog Max Distance
+##        self.max_distance_bd_prompt = wx.StaticText\
+##                                      (self, label = "Bird Dog Max Distance: ")
+##        self.max_distance_bd = wx.TextCtrl(self, value="", \
+##                                      size = (100, -1))
+##        grid.Add(self.max_distance_bd_prompt, pos = (18, 2))
+##        grid.Add(self.max_distance_bd, pos = (18, 3))
+##        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 28), \
+##                  self.max_distance_bd)
+##        self.make_bold(self.max_distance_bd_prompt)
 
-        #Airtanker Max Distance
-        self.max_distance_at_prompt = wx.StaticText\
-                                      (self, label = "Airtanker Max Distance: ")
-        self.max_distance_at = wx.TextCtrl(self, value="", \
+        #Airtanker Fuel Capacity
+        self.at_fuel_cap_prompt = wx.StaticText\
+                                      (self, label ="Airtanker Fuel Capacity: ")
+        self.at_fuel_cap = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.max_distance_at_prompt, pos = (17, 2))
-        grid.Add(self.max_distance_at, pos = (17, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 26), \
-                  self.max_distance_at)
-        self.make_bold(self.max_distance_at_prompt)
+        grid.Add(self.at_fuel_cap_prompt, pos = (19, 0))
+        grid.Add(self.at_fuel_cap, pos = (19, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 37), \
+                  self.at_fuel_cap)
+        self.make_bold(self.at_fuel_cap_prompt)
 
-        #Bird Dog Max Time
-        self.max_time_bd_prompt = wx.StaticText\
-                                  (self, label = "Bird Dog Max Time: ")
-        self.max_time_bd = wx.TextCtrl(self, value="", \
+        #Airtanker Fuel Consumption
+        self.at_fuel_con_prompt = wx.StaticText(self, label = \
+                                                "Airtanker Fuel Consumption: ")
+        self.at_fuel_con = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.max_time_bd_prompt, pos = (18, 0))
-        grid.Add(self.max_time_bd, pos = (18, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 27), self.max_time_bd)
-        self.make_bold(self.max_time_bd_prompt)
+        grid.Add(self.at_fuel_con_prompt, pos = (19, 2))
+        grid.Add(self.at_fuel_con, pos = (19, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 38), \
+                  self.at_fuel_con)
+        self.make_bold(self.at_fuel_con_prompt)
 
-        #Bird Dog Max Distance
-        self.max_distance_bd_prompt = wx.StaticText\
-                                      (self, label = "Bird Dog Max Distance: ")
-        self.max_distance_bd = wx.TextCtrl(self, value="", \
+        #Bird Dog Fuel Capacity
+        self.bd_fuel_cap_prompt = wx.StaticText(self, label = \
+                                                     "Bird Dog Fuel Capacity: ")
+        self.bd_fuel_cap = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.max_distance_bd_prompt, pos = (18, 2))
-        grid.Add(self.max_distance_bd, pos = (18, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 28), \
-                  self.max_distance_bd)
-        self.make_bold(self.max_distance_bd_prompt)
+        grid.Add(self.bd_fuel_cap_prompt, pos = (20, 0))
+        grid.Add(self.bd_fuel_cap, pos = (20, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 39), \
+                  self.bd_fuel_cap)
+        self.make_bold(self.bd_fuel_cap_prompt)
+
+        #Bird Dog Fuel Consumption
+        self.bd_fuel_con_prompt = wx.StaticText(self,
+                                                label =
+                                                "Bird Dog Fuel Consumption: ")
+        self.bd_fuel_con = wx.TextCtrl(self, value="", \
+                                      size = (100, -1))
+        grid.Add(self.bd_fuel_con_prompt, pos = (20, 2))
+        grid.Add(self.bd_fuel_con, pos = (20, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 40), \
+                  self.bd_fuel_con)
+        self.make_bold(self.bd_fuel_con_prompt)
 
         #Points
         self.points_title =wx.StaticText(self, label ="TRACKED POINTS")
-        grid.Add(self.points_title, pos=(19, 2))
+        grid.Add(self.points_title, pos=(21, 2))
         self.make_bold(self.points_title)
 
         #Number of Points
@@ -422,9 +582,9 @@ class mainwindow(wx.Frame):
                                  (self, label = "Number of Points: ")
         self.num_points = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.num_points_prompt, pos = (20, 0))
-        grid.Add(self.num_points, pos = (20, 1))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 29), self.num_points)
+        grid.Add(self.num_points_prompt, pos = (22, 0))
+        grid.Add(self.num_points, pos = (22, 1))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 41), self.num_points)
         self.make_bold(self.num_points_prompt)
 
         #Points Latitudes
@@ -432,9 +592,9 @@ class mainwindow(wx.Frame):
                                  (self, label = "Points Latitudes: ")
         self.points_lat = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.points_lat_prompt, pos = (20, 2))
-        grid.Add(self.points_lat, pos = (20, 3))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 30), self.points_lat)
+        grid.Add(self.points_lat_prompt, pos = (22, 2))
+        grid.Add(self.points_lat, pos = (22, 3))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 42), self.points_lat)
         self.make_bold(self.points_lat_prompt)
 
         #Points Longitudes
@@ -442,24 +602,28 @@ class mainwindow(wx.Frame):
                                   (self, label = "Points Longitudes: ")
         self.points_long = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
-        grid.Add(self.points_long_prompt, pos = (20, 4))
-        grid.Add(self.points_long, pos = (20, 5))
-        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 31), self.points_long)
+        grid.Add(self.points_long_prompt, pos = (22, 4))
+        grid.Add(self.points_long, pos = (22, 5))
+        self.Bind(wx.EVT_TEXT, lambda x: self.EvtText(x, 43), self.points_long)
         self.make_bold(self.points_long_prompt)
 
-        self.input_select = [self.num_runs, self.length_run,
+        self.input_select = [self.num_runs, self.length_run, self.time_dark,
+                             self.lightning_fires, self.human_fires,
+                             self.check_dist,
                              self.show_fire_attributes, self.save_daily_avgs,
-                             self.ffmc, self.isi,
+                             self.month, self.day, self.min_month, self.min_day,
+                             self.ffmc, self.bui, self.ws, self.w_dir,
+                             self.p_con, self.p_dead_fir, self.gfl, self.p_cur,
                              self.min_lat, self.max_lat, self.min_long,
                              self.max_long, self.num_rows, self.num_columns,
-                             self.p_con, self.p_dead_fir, self.num_bases,
+                             self.num_bases,
                              self.bases_lat, self.bases_long, self.base_num_at,
                              self.base_num_bd, self.airtanker_cruising,
                              self.airtanker_fight, self.airtanker_circling,
                              self.bird_dog_cruising, self.bird_dog_fight,
-                             self.bird_dog_circling, self.max_time_at,
-                             self.max_distance_at, self.max_time_bd,
-                             self.max_distance_bd, self.num_points,
+                             self.bird_dog_circling, self.at_fuel_cap,
+                             self.bd_fuel_cap, self.at_fuel_con,
+                             self.bd_fuel_con, self.num_points,
                              self.points_lat, self.points_long]
 
         try:
@@ -589,7 +753,7 @@ class mainwindow(wx.Frame):
                 try:
                     self.input_select[x].SetValue(self.input[x])
                 except (TypeError, AttributeError):
-                    if x == 2 or x == 3:
+                    if x == 6 or x == 7:
                         if self.input[x] == 'True':
                             self.input_select[x].SetValue(True)
                         else:
@@ -620,20 +784,20 @@ class mainwindow(wx.Frame):
         self.input[num] = e.GetString().encode('ascii', 'ignore')
 
     def show_fires(self, e):
-        if self.input_fixed[2]:
-            self.input_fixed[2] = False
-            self.input[2] = 'False'
+        if self.input_fixed[6]:
+            self.input_fixed[6] = False
+            self.input[6] = 'False'
         else:
-            self.input_fixed[2] = True
-            self.input[2] = 'True'
+            self.input_fixed[6] = True
+            self.input[6] = 'True'
 
     def save_daily(self, e):
-        if self.input_fixed[3]:
-            self.input_fixed[3] = False
-            self.input[3] = 'False'
+        if self.input_fixed[7]:
+            self.input_fixed[7] = False
+            self.input[7] = 'False'
         else:
-            self.input_fixed[3] = True
-            self.input[3] = 'True'
+            self.input_fixed[7] = True
+            self.input[7] = 'True'
 
     def OnClick(self, e):
         self.disable_buttons()
@@ -672,7 +836,7 @@ class mainwindow(wx.Frame):
                 try:
                     self.input[x].SetValue(0)
                 except AttributeError:
-                    if x == 2 or x == 3:#Show Fire Attributes Checkbox
+                    if x == 6 or x == 7:#Show Fire Attributes Checkbox
                         self.input_fixed[x] = False
 
     def make_bold(self, text):
@@ -700,11 +864,11 @@ class mainwindow(wx.Frame):
         else:
             self.logger.AppendText("\nInvalid Number of runs\n\n")
             return
-        loaded = 100.0 / (1 + (max_count * 0.008))
+        loaded = 100.0 / (0.5 + (max_count * 0.007))
         while loaded < 100.0:
             time.sleep(1)
             self.gauge.SetValue(loaded)
-            loaded += 100.0 / (20 + (max_count * 0.007))
+            loaded += 100.0 / (0.5 + (max_count * 0.007))
             if self.stop_load_bar_flag:
                 break
         self.gauge.SetValue(100)
