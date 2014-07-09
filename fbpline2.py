@@ -35,8 +35,22 @@ def FBP_Calculate(var):
     except TypeError:
         return "Invalid Fueltype Selected.\n\n"
     try:
-        if len (data.fueltype) == 2:
+        if len (data.fueltype) == 2 and data.fueltype not in ("O1", 'M1'):
             data.fueltype += ' '
+        else:
+            if var[1] == 0 or var[2] == -9:
+                print "Date is Required."
+                raise SystemExit
+            if data.fueltype == 'M1':
+                if int(var[1]) >= 6:
+                    data.fueltype = 'M2 '
+                else:
+                    data.fueltype = 'M1 '
+            if data.fueltype == 'O1':
+                if int(var[1]) >= 6:
+                    data.fueltype = 'O1b'
+                else:
+                    data.fueltype = 'O1a'
     except TypeError:
         return "Invalid Fueltype Selected.\n\n"
     try:
@@ -159,3 +173,10 @@ def FBP_Calculate(var):
            head.rost,  (head.dist), flank.cfb, flank.fd, flank.ros, flank.fi,\
            flank.rost,  flank.dist, backs.cfb, backs.fd, backs.ros, backs.fi, \
            backs.rost,  backs.dist
+
+
+if __name__ == '__main__':
+    input1 = ['O1', 7, 11, '', '', 3.9262492553876704, 54.58351564161577, 0.0,
+             0.0, 0, '', '', 0, 0, 0.0, 0.0, 0, 0, 626.7717106225749, 1]
+    bob = FBP_Calculate(input1)
+    print '\n', bob

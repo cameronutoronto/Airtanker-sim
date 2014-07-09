@@ -55,7 +55,7 @@ class mainwindow(wx.Frame):
         menuSaveOut = filemenu.Append(wx.ID_SAVE, \
                                    "&Save Output",
                                    "Select a Text File to save Output")
-        menuSaveIn = filemenu.Append(wx.ID_SAVE, \
+        menuSaveIn = filemenu.Append(wx.ID_ANY, \
                                    "&Save Input",
                                    "Select a Text File to save Input")
         menuAbout = filemenu.Append(wx.ID_ABOUT, "&About", \
@@ -622,7 +622,7 @@ class mainwindow(wx.Frame):
                              self.airtanker_fight, self.airtanker_circling,
                              self.bird_dog_cruising, self.bird_dog_fight,
                              self.bird_dog_circling, self.at_fuel_cap,
-                             self.bd_fuel_cap, self.at_fuel_con,
+                             self.at_fuel_con, self.bd_fuel_cap,
                              self.bd_fuel_con, self.num_points,
                              self.points_lat, self.points_long]
 
@@ -864,11 +864,11 @@ class mainwindow(wx.Frame):
         else:
             self.logger.AppendText("\nInvalid Number of runs\n\n")
             return
-        loaded = 100.0 / (0.5 + (max_count * 0.007))
+        loaded = 100.0 / (0.5 + (max_count * 0.07))
         while loaded < 100.0:
             time.sleep(1)
             self.gauge.SetValue(loaded)
-            loaded += 100.0 / (0.5 + (max_count * 0.007))
+            loaded += 100.0 / (0.5 + (max_count * 0.07))
             if self.stop_load_bar_flag:
                 break
         self.gauge.SetValue(100)
@@ -901,7 +901,7 @@ class mainwindow(wx.Frame):
                 for y in range(len(input_list[x])):
                     try:
                         input_list[x][y] = float(input_list[x][y])
-                    except TypeError:
+                    except ValueError:
                         pass
             elif '.' in input_list[x]:
                 try:
