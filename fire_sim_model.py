@@ -19,7 +19,8 @@ EARTHS_RADIUS = 6371 #KM
 FOREST_DATA_LOCATION = "canadian_forest_data.txt"
 USE_FOREST_DATA = True
 IMPROVE_POINTS_BURN = True #Better check, costs time
-EAST_DIRECTION = 0.0 #Set Default Direction
+EAST_DIRECTION = 0.0 #Set Default Direction in RADIANS
+CCW_IS_POS = True #Set counter-clock-wise is positive direction
 
 class user_input():
     def __init__(self, inputs):
@@ -230,9 +231,26 @@ class Fire:
         self.perimeter_at_report = self.size
         self.time = temp
 
+
     def real_centres_max(self): #Gives real elliptical centre
-        dist = (self.max_head_length - self.max_back_length) / 2
+        '''Source: http://www.movable-type.co.uk/scripts/latlong.html
+        Assumed 0 bearing is true north, increasing bearing clockwise'''
+        dist = ((self.max_head_length - self.max_back_length) / 2 -
+                self.max_back_length)
         direct = self.head_direction * math.pi / 180.0
+        if CCW_IS_POS: #Change to coordinates of North 0,CW pos, not from source
+            direct *= -1.0
+            direct += (EAST_DIRECTION + (math.pi / 2))
+            while direct > math.pi:
+                direct -= math.pi
+            while direct < 0:
+                direct += math.pi
+        else:
+            direct -= (math.pi / 2 - EAST_DIRECTION)
+            while direct > 2 * math.pi:
+                direct -= 2 * math.pi
+            while direct < 0:
+                direct += 2 * math.pi
         lat = self.latitude * math.pi / 180.0
         lon = self.longitude * math.pi / 180.0
         d_r = dist / EARTHS_RADIUS
@@ -240,9 +258,13 @@ class Fire:
                              math.sin(d_r) * math.cos(direct)))
         new_long = (lon + math.atan2(math.sin(direct) * math.sin(d_r) *
                                      math.cos(lat), math.cos(d_r) -
-                                     math.sin(lat) * math.sin(new_lat)))
+                                     (math.sin(lat) * math.sin(new_lat))))
         self.real_long = new_long * 180.0 / math.pi
+        while self.real_long > 0:
+            self.real_long -= 360.0 #Western Hemisphere
         self.real_lat = new_lat * 180.0 / math.pi
+        while self.real_lat < 0:
+            self.real_lat += 360.0
         return
 
     
@@ -389,7 +411,8 @@ def distance_euc(x1, y1, x2, y2): #not used
     return math.sqrt((x1-x2) ** 2 + (y1 - y2) ** 2)
 
 def distance(x1, y1, x2, y2): 
-    '''Find the Euclidean distance between 2 points'''
+    '''Uses Haversice Formula to find the distance between 2 points
+    Source: http://en.wikipedia.org/wiki/Haversine_formula'''
     to_rad = math.pi / 180.0
     lat_diff = (y1 * to_rad) - (y2 * to_rad)
     long_diff = (x1 * to_rad) - (x2 * to_rad)
@@ -440,7 +463,8 @@ def area_ellipse(major_axis, minor_axis):
     return area
 
 def perimeter_ellipse(major_axis, minor_axis):
-    '''Return the approximate perimeter of an ellipse'''
+    '''Return the approximate perimeter of an ellipse
+    Source: http://en.wikipedia.org/wiki/Ellipse'''
     if major_axis >= minor_axis:
         a, b = (float(major_axis), float(minor_axis))
     else:
@@ -452,7 +476,8 @@ def perimeter_ellipse(major_axis, minor_axis):
     return math.pi * (a + b) * (1 + (3 * h) / (10 + math.sqrt(4 - 3 * h)))
 
 def ellipse_radius(a, b, theta):
-    '''Return the length of the from the centre of the ellipse w/ angle theta'''
+    '''Return the length of the from the centre of the ellipse w/ angle theta
+    Source: http://en.wikipedia.org/wiki/Ellipse#Polar_form_relative_to_focus'''
     try:
         radius = a * b / (math.sqrt((b * math.cos(theta)) ** 2 +
                                     (a * math.sin(theta)) ** 2))
@@ -981,18 +1006,29 @@ def update_points(fires, points):
         for y in range(len(fires)):
             if IMPROVE_POINTS_BURN:
                 fires[y].real_centres_max() #updates ellipse centre
+            #Bearing formula: http://www.movable-type.co.uk/scripts/latlong.html
+            bearing = (math.atan2(math.sin(points[x].longitude -
+                    fires[y].real_long) * math.cos(points[x].latitude),
+                    math.cos(fires[y].real_lat) * math.sin(points[x].latitude) -
+                    math.sin(fires[y].real_lat) * math.cos(points[x].latitude) *
+                    math.cos(points[x].longitude - fires[y].real_long)))
             point_distance = distance(points[x].longitude, points[x].latitude,
                                        fires[y].real_long, fires[y].real_lat)
-            vert_dist = distance(65, points[x].latitude, 65, fires[y].latitude)
-            horz_dist = distance(points[x].longitude, 85, fires[y].longitude,85)
-            if points[x].latitude < fires[y].latitude:
-                vert_dist *= -1.0
-            if points[x].longitude < fires[y].longitude:
-                horz_dist *= -1.0
-            direct = math.atan2(vert_dist, horz_dist) #equador x prime merid y
-            theta = direct - (fires[y].head_direction - EAST_DIRECTION)
-            fire_dist = ellipse_radius(fires[y].max_head_length, fires[y]
-                                       .max_flank_length, theta)
+##            vert_dist = distance(65, points[x].latitude, 65,fires[y].real_lat)
+##            horz_dist=distance(points[x].longitude,-85,fires[y].real_long,-85)
+##            if points[x].latitude < fires[y].real_lat:
+##                vert_dist *= -1.0
+##            if points[x].longitude < fires[y].real_long:
+##                horz_dist *= -1.0
+##            direct = math.atan2(vert_dist, horz_dist) #equador x prime merid y
+##            theta = direct - (fires[y].head_direction - EAST_DIRECTION)
+            if CCW_IS_POS:
+                theta = bearing - (fires[y].head_direction - EAST_DIRECTION)
+            else:
+                theta = bearing - (- 1.0 * (fires[y].head_direction -
+                                            EAST_DIRECTION))
+            fire_dist = ellipse_radius(fires[y].max_head_length,
+                                       fires[y].max_flank_length, theta)
             if fire_dist >= point_distance: #burned
                 points[x].burned[-1] = 1.0
                 break
