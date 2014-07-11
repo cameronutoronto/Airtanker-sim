@@ -13,8 +13,6 @@ from haversine import *
 
 #Please note that values of -1.0 are unchanged or erroneous values
 
-#POINTS BROKEN
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #                           Read-only Variables (editable)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -267,10 +265,10 @@ class Fire:
         if CCW_IS_POS: #Change to coordinates of North 0,CW pos, not from source
             direct *= -1.0
             direct += (EAST_DIRECTION + (math.pi / 2))
-            while direct > 2 * math.pi:
-                direct -= 2 * math.pi
+            while direct > math.pi:
+                direct -= math.pi
             while direct < 0:
-                direct += 2 * math.pi
+                direct += math.pi
         else:
             direct -= (math.pi / 2 - EAST_DIRECTION)
             while direct > 2 * math.pi:
@@ -278,9 +276,16 @@ class Fire:
             while direct < 0:
                 direct += 2 * math.pi
         d_r = dist / EARTHS_RADIUS
-        new_lat = translate_coordinate_lat(self.longitude, self.latitude,
+##        lat = to_rad(self.latitude)
+##        lon = to_rad(self.longitude)
+##        new_lat = (math.asin(math.sin(lat) * math.cos(d_r) + math.cos(lat) *
+##                             math.sin(d_r) * math.cos(direct)))
+##        new_long = (lon + math.atan2(math.sin(direct) * math.sin(d_r) *
+##                                     math.cos(lat), math.cos(d_r) -
+##                                     (math.sin(lat) * math.sin(new_lat))))
+        new_lat = translate_coordinate_lat(self.latitude, self.longitude,
                                            direct, d_r)
-        new_long = translate_coordinate_lon(self.longitude, self.latitude,
+        new_long = translate_coordinate_lon(self.latitude, self.longitude,
                                            direct, d_r, new_lat)
         self.real_long = to_degrees(new_long)
         while self.real_long > 0:
@@ -412,10 +417,75 @@ class Point: #Points to keep track of during simulation
 #                                   Functions
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
+def fires_per_day(ffmc): #number of fires in a day only based on FFMC
+    #NOT CURRENTLY USED
+    '''Calculate the fires in a day based on ffmc'''
+    if type(ffmc) != float and type(ffmc) != int:
+        print "Invalid ffmc entered"
+        raise SystemExit
+    if (ffmc <= 70.0):
+        return float(ffmc / 70)
+    elif ffmc <= 80.0:
+        return float((7 * ffmc / 10) - 48)
+    elif ffmc > 80.0:
+        return float((11 * ffmc / 10) - 80)
+
 def mean_time_between_fires(fires_per_day): #used calculate fire ignition times
     '''Return mean time in minutes between fires'''
     fires_per_hour = fires_per_day / 24.0 #OR 8.0?
     return  60.0 / fires_per_hour
+
+def distance_euc(x1, y1, x2, y2): #not used
+    '''Find the Euclidean distance between 2 points'''
+    return math.sqrt((x1-x2) ** 2 + (y1 - y2) ** 2)
+
+##def distance(x1, y1, x2, y2): 
+##    '''Uses Haversice Formula to find the distance between 2 points
+##    Source: http://en.wikipedia.org/wiki/Haversine_formula'''
+##    to_rad = math.pi / 180.0
+##    lat_diff = (y1 * to_rad) - (y2 * to_rad)
+##    long_diff = (x1 * to_rad) - (x2 * to_rad)
+##    lat_diff_2 = lat_diff / 2.0
+##    long_diff_2 = long_diff / 2.0
+##    const = 2.0 * EARTHS_RADIUS
+##    distance = const * math.asin(math.sqrt(math.sin(lat_diff_2) ** 2 + \
+##                                           (math.cos(y1 * to_rad) *
+##                                            math.cos(y2 * to_rad) *
+##                                                    (math.sin(long_diff_2) ** 2\
+##                                                     ))))
+##    return distance
+
+def obj_distance_euc(obj1, obj2): #Not used
+    '''Return Euclidean distance between the objects'''
+    distance = math.sqrt((obj1.longitude - obj2.longitude) ** 2 + \
+                         (obj1.latitude - obj2.latitude) ** 2)
+    if isinstance(obj1, Fire): #Find fire to centre or...
+        pass
+    if isinstance(obj2, Fire):
+        pass
+    return distance
+
+##def obj_distance(obj1, obj2):
+##    '''Uses Haversice Formula to find the distance between 2 points
+##    Source: http://en.wikipedia.org/wiki/Haversine_formula'''
+##    to_rad = math.pi / 180.0
+##    lat_diff = (obj1.latitude * to_rad) - (obj2.latitude * to_rad)
+##    long_diff = (obj1.longitude * to_rad) - (obj2.longitude * to_rad)
+##    lat_diff_2 = lat_diff / 2.0
+##    long_diff_2 = long_diff / 2.0
+##    const = 2.0 * EARTHS_RADIUS
+##    distance = const * math.asin(math.sqrt(math.sin(lat_diff_2) ** 2 + \
+##                                           (math.cos(obj1.latitude * to_rad) *
+##                                                    math.cos(obj2.latitude *\
+##                                                             to_rad) *
+##                                                    (math.sin(long_diff_2) ** 2\
+##                                                     ))))
+##                                                         
+##    if isinstance(obj1, Fire):
+##        pass
+##    if isinstance(obj2, Fire):
+##        pass
+##    return distance
 
 def obj_distance(obj1, obj2):
     '''Uses Haversice Formula to find the distance between 2 points
@@ -426,6 +496,36 @@ def obj_distance(obj1, obj2):
     if isinstance(obj2, Fire):
         pass
     return dist
+
+
+##def area_ellipse(major_axis, minor_axis):
+##    '''Return the area of an ellipse'''
+##    area = math.pi * major_axis * minor_axis
+##    return area
+##
+##def perimeter_ellipse(major_axis, minor_axis):
+##    '''Return the approximate perimeter of an ellipse
+##    Source: http://en.wikipedia.org/wiki/Ellipse'''
+##    if major_axis >= minor_axis:
+##        a, b = (float(major_axis), float(minor_axis))
+##    else:
+##        a, b = (float(minor_axis), float(major_axis))
+##    try:
+##        h = (((a - b) ** 2) / ((a + b) ** 2))
+##    except ZeroDivisionError:
+##        return 0.0
+##    return math.pi * (a + b) * (1 + (3 * h) / (10 + math.sqrt(4 - 3 * h)))
+##
+##def ellipse_radius(a, b, theta):
+##    '''Return the length of the from the centre of the ellipse w/ angle theta
+##    Source: http://en.wikipedia.org/wiki/Ellipse#Polar_form_relative_to_focus'''
+##    try:
+##        radius = a * b / (math.sqrt((b * math.cos(theta)) ** 2 +
+##                                    (a * math.sin(theta)) ** 2))
+##    except ZeroDivisionError:
+##        radius = 0.0
+##    return radius
+
 
 def generate_fueltype(): #Assumed uniform distribution of fueltypes in forest
     '''Use some probability distribution to return fueltypes'''
@@ -1150,22 +1250,34 @@ def update_statistics_small(stats, fires, bases, points): #Use less memory
 
 def update_points(fires, points):
     '''Updates points' burned attribute'''
-    if IMPROVE_POINTS_BURN:
-        for x in xrange(len(fires)):
-            fires[x].real_centres_max() #updates ellipse centre
     for x in xrange(len(points)):
         points[x].burned.append(0.0)
         for y in xrange(len(fires)):
+            if IMPROVE_POINTS_BURN:
+                fires[y].real_centres_max() #updates ellipse centre
             #Bearing formula: http://www.movable-type.co.uk/scripts/latlong.html
+##            bearing = (math.atan2(math.sin(points[x].longitude -
+##                    fires[y].real_long) * math.cos(points[x].latitude),
+##                    math.cos(fires[y].real_lat) * math.sin(points[x].latitude) -
+##                    math.sin(fires[y].real_lat) * math.cos(points[x].latitude) *
+##                    math.cos(points[x].longitude - fires[y].real_long)))
             bearing = get_bearing(fires[y].real_long, fires[y].real_lat,
                                   points[x].longitude, points[x].latitude)
             point_distance = distance(points[x].longitude, points[x].latitude,
                                        fires[y].real_long, fires[y].real_lat)
+##            vert_dist = distance(65, points[x].latitude, 65,fires[y].real_lat)
+##            horz_dist=distance(points[x].longitude,-85,fires[y].real_long,-85)
+##            if points[x].latitude < fires[y].real_lat:
+##                vert_dist *= -1.0
+##            if points[x].longitude < fires[y].real_long:
+##                horz_dist *= -1.0
+##            direct = math.atan2(vert_dist, horz_dist) #equador x prime merid y
+##            theta = direct - (fires[y].head_direction - EAST_DIRECTION)
             if CCW_IS_POS:
                 theta = bearing - (to_rad(fires[y].head_direction) -
                                    EAST_DIRECTION)
             else:
-                theta = bearing + ((to_rad(fires[y].head_direction) +
+                theta = bearing - (- 1.0 * (to_rad(fires[y].head_direction) -
                                             EAST_DIRECTION))
             fire_dist = ellipse_radius(fires[y].max_head_length,
                                        fires[y].max_flank_length, theta)
@@ -1510,7 +1622,7 @@ def print_simulation_results_small(stats, points, days):
         print"\nPoint %d\n\n" %(x + 1)
         print"Longitude: %2.2f" %points[x].longitude
         print "Latitude: %2.2f" %points[x].latitude
-        print "Percent of days burned: %2.3f%%" \
+        print "Percent of days burned: %2.2f%%" \
               %(sum(points[x].burned) * 100.0 / len(points[x].burned))
 
         

@@ -4,7 +4,6 @@ import random
 import simpy
 import time
 import fbpline2
-from haversine import *
 #Airtanker Simulation Model
 #Written by Cameron Buttazzoni for the Fire Management Lab
 #at the Faculty of Forestry at the University of Toronto.
@@ -12,8 +11,6 @@ from haversine import *
 #Copyright: Cameron Buttazzoni
 
 #Please note that values of -1.0 are unchanged or erroneous values
-
-#POINTS BROKEN
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #                           Read-only Variables (editable)
@@ -85,45 +82,45 @@ class user_input():
         self.base_num_bird_dogs = inputs[30]
         #Cruising speed of each airtanker, km/min
         self.base_airtankers_cruising=[[inputs[31][x+int(sum(inputs[29][:y]))]\
-                                           for x in xrange(int(inputs[29][y]))]\
-                                           for y in xrange(len(inputs[29]))]
+                                           for x in range(int(inputs[29][y]))]\
+                                           for y in range(len(inputs[29]))]
         #Fight fire flying speed of each airtanker km/min
         self.base_airtankers_fight = [[inputs[32][x +int(sum(inputs[29][:y]))]\
-                                           for x in xrange(int(inputs[29][y]))]\
-                                           for y in xrange(len(inputs[29]))]
+                                           for x in range(int(inputs[29][y]))]\
+                                           for y in range(len(inputs[29]))]
         #circling speed of each airtanker km/min
         self.base_airtankers_circling =[[inputs[33][x+int(sum(inputs[29][:y]))]\
-                                           for x in xrange(int(inputs[29][y]))]\
-                                           for y in xrange(len(inputs[29]))]
+                                           for x in range(int(inputs[29][y]))]\
+                                           for y in range(len(inputs[29]))]
         #Bird dogs cruising speed km/min
         self.base_bird_dogs_cruising = [[inputs[34][x+int(sum(inputs[30][:y]))]\
-                                           for x in xrange(int(inputs[30][y]))]\
-                                           for y in xrange(len(inputs[30]))]
+                                           for x in range(int(inputs[30][y]))]\
+                                           for y in range(len(inputs[30]))]
         #Bird dog speed when at fire km/min
         self.base_bird_dogs_fight = [[inputs[35][x +int(sum(inputs[30][:y]))] \
-                                           for x in xrange(int(inputs[30][y]))]\
-                                           for y in xrange(len(inputs[30]))]
+                                           for x in range(int(inputs[30][y]))]\
+                                           for y in range(len(inputs[30]))]
         #Bird dogs circling speed km/min
         self.base_bird_dogs_circling = [[inputs[36][x+int(sum(inputs[30][:y]))]\
-                                           for x in xrange(int(inputs[30][y]))]\
-                                           for y in xrange(len(inputs[30]))]
+                                           for x in range(int(inputs[30][y]))]\
+                                           for y in range(len(inputs[30]))]
         #Airtanker Fuel Capacity
         self.base_airtankers_fuel_cap =[[inputs[37][x+int(sum(inputs[29][:y]))]\
-                                           for x in xrange(int(inputs[29][y]))]\
-                                           for y in xrange(len(inputs[29]))]
+                                           for x in range(int(inputs[29][y]))]\
+                                           for y in range(len(inputs[29]))]
         #Airtanker Fuel Consumption
         self.base_airtankers_fuel_con =[[inputs[38][x+int(sum(inputs[29][:y]))]\
-                                           for x in xrange(int(inputs[29][y]))]\
-                                           for y in xrange(len(inputs[29]))]
+                                           for x in range(int(inputs[29][y]))]\
+                                           for y in range(len(inputs[29]))]
         #bird dogs Fuel Capacity
         self.base_bird_dogs_fuel_cap = [[inputs[39][x+int(sum(inputs[30][:y]))]\
-                                           for x in xrange(int(inputs[30][y]))]\
-                                           for y in xrange(len(inputs[30]))]
+                                           for x in range(int(inputs[30][y]))]\
+                                           for y in range(len(inputs[30]))]
         #bird dogs Fuel Consumption
         self.base_bird_dogs_fuel_con = [[inputs[40]\
                                              [x +int(sum(inputs[30][:y]))]\
-                                           for x in xrange(int(inputs[30][y]))]\
-                                           for y in xrange(len(inputs[30]))]
+                                           for x in range(int(inputs[30][y]))]\
+                                           for y in range(len(inputs[30]))]
 
 
         #Random Points
@@ -263,29 +260,32 @@ class Fire:
         Assumed 0 bearing is true north, increasing bearing clockwise'''
         dist = ((self.max_head_length - self.max_back_length) / 2 -
                 self.max_back_length)
-        direct = to_rad(self.head_direction)
+        direct = self.head_direction * math.pi / 180.0
         if CCW_IS_POS: #Change to coordinates of North 0,CW pos, not from source
             direct *= -1.0
             direct += (EAST_DIRECTION + (math.pi / 2))
-            while direct > 2 * math.pi:
-                direct -= 2 * math.pi
+            while direct > math.pi:
+                direct -= math.pi
             while direct < 0:
-                direct += 2 * math.pi
+                direct += math.pi
         else:
             direct -= (math.pi / 2 - EAST_DIRECTION)
             while direct > 2 * math.pi:
                 direct -= 2 * math.pi
             while direct < 0:
                 direct += 2 * math.pi
+        lat = self.latitude * math.pi / 180.0
+        lon = self.longitude * math.pi / 180.0
         d_r = dist / EARTHS_RADIUS
-        new_lat = translate_coordinate_lat(self.longitude, self.latitude,
-                                           direct, d_r)
-        new_long = translate_coordinate_lon(self.longitude, self.latitude,
-                                           direct, d_r, new_lat)
-        self.real_long = to_degrees(new_long)
+        new_lat = (math.asin(math.sin(lat) * math.cos(d_r) + math.cos(lat) *
+                             math.sin(d_r) * math.cos(direct)))
+        new_long = (lon + math.atan2(math.sin(direct) * math.sin(d_r) *
+                                     math.cos(lat), math.cos(d_r) -
+                                     (math.sin(lat) * math.sin(new_lat))))
+        self.real_long = new_long * 180.0 / math.pi
         while self.real_long > 0:
             self.real_long -= 360.0 #Western Hemisphere
-        self.real_lat = to_degrees(new_lat)
+        self.real_lat = new_lat * 180.0 / math.pi
         while self.real_lat < 0:
             self.real_lat += 360.0
         return
@@ -322,7 +322,7 @@ class Fire:
         print "Max Flank Length %.4f" %self.max_flank_length
         print "Max Back Length %.4f" %self.max_back_length
         print "Fire Was Controlled:", self.controlled
-        for x in xrange(len(self.size_at_airtanker_arrival)):
+        for x in range(len(self.size_at_airtanker_arrival)):
             try:
                 print "Size at Airtanker %d Arrival: %4.2f" \
                       %(x + 1, self.size_at_airtanker_arrival[x])
@@ -412,20 +412,104 @@ class Point: #Points to keep track of during simulation
 #                                   Functions
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
+def fires_per_day(ffmc): #number of fires in a day only based on FFMC
+    #NOT CURRENTLY USED
+    '''Calculate the fires in a day based on ffmc'''
+    if type(ffmc) != float and type(ffmc) != int:
+        print "Invalid ffmc entered"
+        raise SystemExit
+    if (ffmc <= 70.0):
+        return float(ffmc / 70)
+    elif ffmc <= 80.0:
+        return float((7 * ffmc / 10) - 48)
+    elif ffmc > 80.0:
+        return float((11 * ffmc / 10) - 80)
+
 def mean_time_between_fires(fires_per_day): #used calculate fire ignition times
     '''Return mean time in minutes between fires'''
     fires_per_hour = fires_per_day / 24.0 #OR 8.0?
     return  60.0 / fires_per_hour
 
+def distance_euc(x1, y1, x2, y2): #not used
+    '''Find the Euclidean distance between 2 points'''
+    return math.sqrt((x1-x2) ** 2 + (y1 - y2) ** 2)
+
+def distance(x1, y1, x2, y2): 
+    '''Uses Haversice Formula to find the distance between 2 points
+    Source: http://en.wikipedia.org/wiki/Haversine_formula'''
+    to_rad = math.pi / 180.0
+    lat_diff = (y1 * to_rad) - (y2 * to_rad)
+    long_diff = (x1 * to_rad) - (x2 * to_rad)
+    lat_diff_2 = lat_diff / 2.0
+    long_diff_2 = long_diff / 2.0
+    const = 2.0 * EARTHS_RADIUS
+    distance = const * math.asin(math.sqrt(math.sin(lat_diff_2) ** 2 + \
+                                           (math.cos(y1 * to_rad) *
+                                            math.cos(y2 * to_rad) *
+                                                    (math.sin(long_diff_2) ** 2\
+                                                     ))))
+    return distance
+
+def obj_distance_euc(obj1, obj2): #Not used
+    '''Return Euclidean distance between the objects'''
+    distance = math.sqrt((obj1.longitude - obj2.longitude) ** 2 + \
+                         (obj1.latitude - obj2.latitude) ** 2)
+    if isinstance(obj1, Fire): #Find fire to centre or...
+        pass
+    if isinstance(obj2, Fire):
+        pass
+    return distance
+
 def obj_distance(obj1, obj2):
     '''Uses Haversice Formula to find the distance between 2 points
     Source: http://en.wikipedia.org/wiki/Haversine_formula'''
-    dist = distance(obj1.longitude, obj1.latitude, obj2.longitude,obj2.latitude)
+    to_rad = math.pi / 180.0
+    lat_diff = (obj1.latitude * to_rad) - (obj2.latitude * to_rad)
+    long_diff = (obj1.longitude * to_rad) - (obj2.longitude * to_rad)
+    lat_diff_2 = lat_diff / 2.0
+    long_diff_2 = long_diff / 2.0
+    const = 2.0 * EARTHS_RADIUS
+    distance = const * math.asin(math.sqrt(math.sin(lat_diff_2) ** 2 + \
+                                           (math.cos(obj1.latitude * to_rad) *
+                                                    math.cos(obj2.latitude *\
+                                                             to_rad) *
+                                                    (math.sin(long_diff_2) ** 2\
+                                                     ))))
+                                                         
     if isinstance(obj1, Fire):
         pass
     if isinstance(obj2, Fire):
         pass
-    return dist
+    return distance
+
+def area_ellipse(major_axis, minor_axis):
+    '''Return the area of an ellipse'''
+    area = math.pi * major_axis * minor_axis
+    return area
+
+def perimeter_ellipse(major_axis, minor_axis):
+    '''Return the approximate perimeter of an ellipse
+    Source: http://en.wikipedia.org/wiki/Ellipse'''
+    if major_axis >= minor_axis:
+        a, b = (float(major_axis), float(minor_axis))
+    else:
+        a, b = (float(minor_axis), float(major_axis))
+    try:
+        h = (((a - b) ** 2) / ((a + b) ** 2))
+    except ZeroDivisionError:
+        return 0.0
+    return math.pi * (a + b) * (1 + (3 * h) / (10 + math.sqrt(4 - 3 * h)))
+
+def ellipse_radius(a, b, theta):
+    '''Return the length of the from the centre of the ellipse w/ angle theta
+    Source: http://en.wikipedia.org/wiki/Ellipse#Polar_form_relative_to_focus'''
+    try:
+        radius = a * b / (math.sqrt((b * math.cos(theta)) ** 2 +
+                                    (a * math.sin(theta)) ** 2))
+    except ZeroDivisionError:
+        radius = 0.0
+    return radius
+
 
 def generate_fueltype(): #Assumed uniform distribution of fueltypes in forest
     '''Use some probability distribution to return fueltypes'''
@@ -446,9 +530,9 @@ def create_forest(inputs): #Generate forest with random stands
     if type(inputs.num_columns) != int:
         print "Please enter num_columns as an integer"
         raise SystemExit
-    for x in xrange (inputs.num_rows):
+    for x in range (inputs.num_rows):
         forest.append([])
-        for y in xrange(inputs.num_columns):
+        for y in range(inputs.num_columns):
             forest[x].append(Forest_stand(generate_fueltype(),generate_slope(),
                                           random.uniform(0, 360)))
     return forest
@@ -635,7 +719,7 @@ def determine_points_longitude(inputs, points, point_num):
 def create_points(inputs):
     '''Return a list of points in the forest to track'''
     points = []
-    for x in xrange(inputs.num_points):
+    for x in range(inputs.num_points):
         lat = determine_points_latitude(inputs, points, x)
         lon = determine_points_longitude(inputs, points, x)
         points.append(Point(lat, lon))
@@ -727,7 +811,7 @@ def create_airtankers(base_num, env, inputs):
     except (IndexError, ValueError):
         print "Invalid number of airtankers entered"
         raise SystemExit
-    for x in xrange (num):
+    for x in range (num):
         (cruising, fight, circling, lat, lon, fly_after_dark, drop_type,
                 size, fuel_cap, fuel_con, after_fire_prot) = get_airtanker_stats(
                     base_num,env,inputs,x)
@@ -822,7 +906,7 @@ def create_bird_dogs(base_num, env, inputs):
     except (IndexError, ValueError):
         print "Invalid number of bird dogs entered"
         raise SystemExit
-    for x in xrange(num):
+    for x in range(num):
         (cruising, fight, circling, lat, lon, fly_after_dark, drop_type,
                 size, fuel_cap, fuel_con, after_fire_prot) =get_bird_dogs_stats(
                     base_num, env, inputs, x)
@@ -856,7 +940,7 @@ def create_bases(env, inputs):
         except ValueError:
             print "Invalid number of bases value entered"
             raise SystemExit
-    for x in xrange(inputs.num_bases):
+    for x in range(inputs.num_bases):
         lat, lon = get_base_stats(env, inputs, x)
         airtankers, airtankers_resource = create_airtankers(x, env, inputs)
         bird_dogs, bird_dogs_resource = create_bird_dogs(x, env, inputs)
@@ -881,7 +965,7 @@ def update_statistics(stats, fires, bases, points): #add bases statistics
     control_time = 0.0
     fight_fire_time = 0.0
     controlled_rate = 0.0
-    for x in xrange(len(fires)): #Increase each value by the amount for a fire
+    for x in range(len(fires)): #Increase each value by the amount for a fire
         max_size += fires[x].max_size
         detection_size += fires[x].size_at_detection
         report_size += fires[x].size_at_report
@@ -918,8 +1002,8 @@ def update_statistics(stats, fires, bases, points): #add bases statistics
         control_time = 0
     #Calculate airtanker stats
     count = 0
-    for x in xrange(len(bases)):
-        for y in xrange(len(bases[x].airtankers)):
+    for x in range(len(bases)):
+        for y in range(len(bases[x].airtankers)):
             travel_distance += bases[x].airtankers[y].total_travel_distance
             travel_time += bases[x].airtankers[y].total_travel_time
             wait_time += bases[x].airtankers[y].total_wait_time
@@ -970,7 +1054,7 @@ def update_statistics_small(stats, fires, bases, points): #Use less memory
     control_time = 0.0
     fight_fire_time = 0.0
     controlled_rate = 0.0
-    for x in xrange(len(fires)): #Increase each value by the amount for a fire
+    for x in range(len(fires)): #Increase each value by the amount for a fire
         max_size += fires[x].max_size
         detection_size += fires[x].size_at_detection
         report_size += fires[x].size_at_report
@@ -1007,8 +1091,8 @@ def update_statistics_small(stats, fires, bases, points): #Use less memory
         control_time = 0.0
     #Calculate airtanker stats
     count = 0
-    for x in xrange(len(bases)):
-        for y in xrange(len(bases[x].airtankers)):
+    for x in range(len(bases)):
+        for y in range(len(bases[x].airtankers)):
             travel_distance += bases[x].airtankers[y].total_travel_distance
             travel_time += bases[x].airtankers[y].total_travel_time
             wait_time += bases[x].airtankers[y].total_wait_time
@@ -1037,7 +1121,7 @@ def update_statistics_small(stats, fires, bases, points): #Use less memory
     stats.average_control_time.append(0.0)
     stats.average_fight_fire_time.append(0.0)
     #Set Max Then Min
-    for x in xrange (2):
+    for x in range (2):
         stats.average_max_size.append(-1.0)
         stats.average_detection_size.append(-1.0)
         stats.average_report_size.append(-1.0)
@@ -1150,22 +1234,31 @@ def update_statistics_small(stats, fires, bases, points): #Use less memory
 
 def update_points(fires, points):
     '''Updates points' burned attribute'''
-    if IMPROVE_POINTS_BURN:
-        for x in xrange(len(fires)):
-            fires[x].real_centres_max() #updates ellipse centre
-    for x in xrange(len(points)):
+    for x in range(len(points)):
         points[x].burned.append(0.0)
-        for y in xrange(len(fires)):
+        for y in range(len(fires)):
+            if IMPROVE_POINTS_BURN:
+                fires[y].real_centres_max() #updates ellipse centre
             #Bearing formula: http://www.movable-type.co.uk/scripts/latlong.html
-            bearing = get_bearing(fires[y].real_long, fires[y].real_lat,
-                                  points[x].longitude, points[x].latitude)
+            bearing = (math.atan2(math.sin(points[x].longitude -
+                    fires[y].real_long) * math.cos(points[x].latitude),
+                    math.cos(fires[y].real_lat) * math.sin(points[x].latitude) -
+                    math.sin(fires[y].real_lat) * math.cos(points[x].latitude) *
+                    math.cos(points[x].longitude - fires[y].real_long)))
             point_distance = distance(points[x].longitude, points[x].latitude,
                                        fires[y].real_long, fires[y].real_lat)
+##            vert_dist = distance(65, points[x].latitude, 65,fires[y].real_lat)
+##            horz_dist=distance(points[x].longitude,-85,fires[y].real_long,-85)
+##            if points[x].latitude < fires[y].real_lat:
+##                vert_dist *= -1.0
+##            if points[x].longitude < fires[y].real_long:
+##                horz_dist *= -1.0
+##            direct = math.atan2(vert_dist, horz_dist) #equador x prime merid y
+##            theta = direct - (fires[y].head_direction - EAST_DIRECTION)
             if CCW_IS_POS:
-                theta = bearing - (to_rad(fires[y].head_direction) -
-                                   EAST_DIRECTION)
+                theta = bearing - (fires[y].head_direction - EAST_DIRECTION)
             else:
-                theta = bearing + ((to_rad(fires[y].head_direction) +
+                theta = bearing - (- 1.0 * (fires[y].head_direction -
                                             EAST_DIRECTION))
             fire_dist = ellipse_radius(fires[y].max_head_length,
                                        fires[y].max_flank_length, theta)
@@ -1241,8 +1334,8 @@ def select_airtanker(fire, bases):
         airtanker_num = 0
     else:
         return -1.0, -1.0
-    for x in xrange (len(bases)): #Finds closest airtanker
-        for y in xrange(len(bases[x].airtankers)):
+    for x in range (len(bases)): #Finds closest airtanker
+        for y in range(len(bases[x].airtankers)):
             try:
                 if obj_distance(bases[x].airtankers[y], fire) < \
                    obj_distance(bases[base_num].airtankers[airtanker_num],fire):
@@ -1319,7 +1412,7 @@ def main_airtanker_process(env, fires, bases, inputs):
     while True:
         min_report = -1.0
         lowest_fire = -1.0
-        for x in xrange(len(fires)):
+        for x in range(len(fires)):
             if (fires[x].time_at_report < min_report  or min_report == -1.0):
                 if fires[x].time_at_report > env.now: 
                     min_report = fires[x].time_at_report
@@ -1416,7 +1509,7 @@ def print_simulation_results(stats, points):
 
     #Points Statistics
     print "\n\nPoint Statistics\n"
-    for x in xrange(len(points)):
+    for x in range(len(points)):
         print"\nPoint %d\n\n" %(x + 1)
         print"Longitude: %2.2f" %points[x].longitude
         print "Latitude: %2.2f" %points[x].latitude
@@ -1506,17 +1599,17 @@ def print_simulation_results_small(stats, points, days):
 
     #Points Statistics
     print "\n\nPoint Statistics\n"
-    for x in xrange(len(points)):
+    for x in range(len(points)):
         print"\nPoint %d\n\n" %(x + 1)
         print"Longitude: %2.2f" %points[x].longitude
         print "Latitude: %2.2f" %points[x].latitude
-        print "Percent of days burned: %2.3f%%" \
+        print "Percent of days burned: %2.2f%%" \
               %(sum(points[x].burned) * 100.0 / len(points[x].burned))
 
         
 def print_fire_info(fires):
     '''Call every fire instance's print_attributes method'''
-    for x in xrange(len(fires)):
+    for x in range(len(fires)):
         print "\nFire ", x + 1, "\n"
         fires[x].print_attributes()
 
@@ -1610,7 +1703,7 @@ def check_inputs(inputs):
     if type(inputs.FFMC) == float or type(inputs.FFMC) == int:
         inputs.FFMC = float(inputs.FFMC)
         if inputs.FFMC < 0 or inputs.FFMC > 150:
-            print "\nFFMC Value Out of range\n\n"
+            print "\nFFMC Value Out of Range\n\n"
             return -1
     else:
         print "Invalid FFMC Value Entered"
@@ -1713,11 +1806,11 @@ def check_inputs(inputs):
     if inputs.num_bases != len(inputs.base_num_bird_dogs):
         print "\nNumber of Bases and Number of Bird Dogs Don't Match\n\n"
         return -1
-    for x in xrange(inputs.num_bases):
+    for x in range(inputs.num_bases):
         if type(inputs.bases_lat[x]) == float or type(inputs.bases_lat[x])==int:
             inputs.bases_lat[x] = float(inputs.bases_lat[x])
             if inputs.bases_lat[x] < -90.0 or inputs.bases_lat[x] > 90.0:
-                print "\nBase %d Latitude Out of range\n\n" %(x + 1)
+                print "\nBase %d Latitude Out of Range\n\n" %(x + 1)
                 return -1
         else:
             print "\nInvalid Base %d Latitude\n\n" %(x + 1)
@@ -1758,7 +1851,7 @@ def check_inputs(inputs):
 ##           len(inputs.base_airtankers_max_distance[x]):
 ##            print "\nNumber of Airtankers and Max Distance Don't Match\n\n"
 ##            return -1
-        for y in xrange(inputs.base_num_airtankers[x]):
+        for y in range(inputs.base_num_airtankers[x]):
             temp = inputs.base_airtankers_cruising[x][y]
             if type(temp) == float or type(temp) == int:
                 temp = float(temp)
@@ -1831,7 +1924,7 @@ def check_inputs(inputs):
 ##           len(inputs.base_bird_dogs_max_distance[x]):
 ##            print "\nNumber of Bird Dogs and Max Distances Don't Match\n\n"
 ##            return -1
-        for y in xrange(inputs.base_num_bird_dogs[x]):
+        for y in range(inputs.base_num_bird_dogs[x]):
             temp = inputs.base_bird_dogs_cruising[x][y]
             if type(temp) == float or type(temp) == int:
                 temp = float(temp)
@@ -1894,7 +1987,7 @@ def check_inputs(inputs):
     if inputs.num_points != len(inputs.points_long):
         print "\nNumber of Points and Point Longitudes Don't Match\n\n"
         return -1
-    for x in xrange(inputs.num_points):
+    for x in range(inputs.num_points):
         if type(inputs.points_lat[x])==float or type(inputs.points_lat[x])==int:
             inputs.points_lat[x] = float(inputs.points_lat[x])
             if inputs.points_lat[x] < -90.0 or inputs.points_lat > 90.0:
@@ -1925,7 +2018,7 @@ def main_func(read_only_values):
     else:
         forest = []
     points = create_points(inputs)
-    for days in xrange(int(inputs.number_runs)):
+    for days in range(int(inputs.number_runs)):
         fires = []
         env = simpy.Environment()
         env2 = simpy.Environment()
@@ -1944,7 +2037,7 @@ def main_func(read_only_values):
 #                                Run Simulation
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 if __name__ == '__main__':
-    list1 = [0 for x in xrange (44)]
+    list1 = [0 for x in range (44)]
     list1[0] = 100
     list1[1] = 1440.0
     list1[3], list1[4] = 5, 5
@@ -1953,7 +2046,7 @@ if __name__ == '__main__':
     list1[21], list1[23] = 85, 85
     list1[24], list1[25] = 10, 10
     list1[26] = 0
-    for y in xrange(27, 44):
+    for y in range(27, 44):
         list1[y] = []
     list1[41] = 0
     main_func(list1)
