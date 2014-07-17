@@ -1187,14 +1187,14 @@ def lightning_fire_wait_time(env, inputs):
 
 def human_fire_generator(env, fires, forest, inputs): #fire gen process
     '''Generates a fire every ___ time'''
-    while True:
+    while 1:
         wait_time = human_fire_wait_time(env, inputs)
         yield env.timeout(wait_time)
         create_fire(env, fires, forest, inputs, "Human")
 
 def lightning_fire_generator(env, fires, forest, inputs): 
     '''Generates a fire every ___ time'''
-    while True:
+    while 1:
         wait_time = lightning_fire_wait_time(env, inputs)
         yield env.timeout(wait_time)
         create_fire(env, fires, forest, inputs, "Lightning")
@@ -1316,7 +1316,7 @@ def bird_dogs_process(env, fires, bases):
 
 def main_airtanker_process(env, fires, bases, inputs):
     '''When a fire is reported, calls the dispatch_airtanker process'''
-    while True:
+    while 1:
         min_report = -1.0
         lowest_fire = -1.0
         for x in xrange(len(fires)):
