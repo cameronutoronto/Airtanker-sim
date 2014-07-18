@@ -153,8 +153,9 @@ def graph_results(outputs, f_p_h, at, s_t, save_file_location):
             fig.savefig(save_file_location)
         except IOError:
             print "\nInvalid Save File Location\n"
-    else:
-        plt.show()
+##    else:
+##        plt.show()
+    plt.show()
         
 
 def get_stats(parameters, outputs, array_size):
@@ -201,6 +202,8 @@ def main_func(inputs):
                      "%1.4f" %outputs.mean_service[-1], inputs[4]))
     graphing.start()
     graphing.join()
+    print ('[', outputs.mean_waits[-1], ']', '[', outputs.mean_waits[
+        int(len(outputs.mean_waits) / 2)], ']')
 ##    graph_results(outputs, inputs[0], inputs[1], outputs.mean_service[-1],
 ##                  inputs[4])
     print "Finished Graphing"

@@ -78,7 +78,8 @@ class mainwindow(wx.Frame):
 
         #Calculate Button
         self.calculate_button = wx.Button(self, label="Calculate")
-        self.Bind(wx.EVT_BUTTON, lambda x: self.OnClick(x, 77), self.calculate_button)
+        self.Bind(wx.EVT_BUTTON, lambda x: self.OnClick(x, 77),
+                  self.calculate_button)
         self.make_bold(self.calculate_button)
         
         #Clear Button
@@ -293,6 +294,7 @@ class mainwindow(wx.Frame):
         dlg = wx.FileDialog(self, "Choose a file", self.dirname, \
                             "", "*.*", wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
+            print "Calculating... (This may take a long time)"
             sys.stdout = sys.__stdout__
             self.filename = dlg.GetFilename()
             self.dirname = dlg.GetDirectory()

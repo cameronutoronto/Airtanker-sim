@@ -33,8 +33,8 @@ class mainwindow(wx.Frame):
         self.SetBackgroundColour((215, 80, 80))
         self.logger = wx.TextCtrl(self, size=(500, 250),style=wx.TE_MULTILINE |\
                                   wx.TE_RICH)
-        stdout_pt = sys.stdout
-        sys.stdout = Redirect_Stdout(stdout_pt, self.logger)
+        self.stdout_pt = sys.stdout
+        sys.stdout = Redirect_Stdout(self.stdout_pt, self.logger)
         self.CreateStatusBar()
         self.gauge = wx.Gauge(self)
         self.Bind(wx.EVT_CLOSE, self.OnExit) #bind x button
@@ -78,7 +78,8 @@ class mainwindow(wx.Frame):
 
         #Calculate Button
         self.calculate_button = wx.Button(self, label="Calculate")
-        self.Bind(wx.EVT_BUTTON, self.OnClick, self.calculate_button)
+        self.Bind(wx.EVT_BUTTON, lambda x: self.OnClick(x, 77),
+                  self.calculate_button)
         self.make_bold(self.calculate_button)
         
         #Clear Button
@@ -235,21 +236,35 @@ class mainwindow(wx.Frame):
         dlg = wx.FileDialog(self, "Choose a file", self.dirname, \
                             "", "*.*", wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
+            print "Calculating... (This may take a long time)"
+            sys.stdout = sys.__stdout__
             self.filename = dlg.GetFilename()
             self.dirname = dlg.GetDirectory()
-            with open (os.path.join(self.dirname, self.filename)) as f:
-                temp = f.readline()
-                temp = temp.split(',')
+            in_file = open(os.path.join(self.dirname, self.filename), 'r')
+            in_file.seek(0)
+            line = in_file.readline()
+            while line != '':
+                if line[-1] == '\n':
+                    temp = line[:-1].split(',')
+                else:
+                    temp = line.split(',')
                 for x in range(len(temp)):
                     try:
                         self.inputs[x] = temp[x]
                     except IndexError:
                         pass
-                self.OnClick(None)
+##                self.OnClick(None)
+                calc_thread = threading.Thread(target=self.OnClick,
+                                        args = (None, None))
+                calc_thread.start()
+                line = in_file.readline()
+            in_file.close()
         dlg.Destroy()
 
-    def OnClick(self, e):
+    def OnClick(self, e, num):
         '''Run the queueing model'''
+        if num == 77:
+            sys.stdout = Redirect_Stdout(self.stdout_pt, self.logger)
         try:
             self.inputs[0] = float(self.inputs[0])
             self.inputs[1] = int(self.inputs[1])

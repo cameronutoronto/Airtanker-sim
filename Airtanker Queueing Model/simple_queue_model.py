@@ -104,8 +104,9 @@ def graph_results(wait_times, mean_waits, std_dev_waits, xaxis,
             fig.savefig(save_file_location)
         except IOError:
             print "\nInvalid Save File Location\n"
-    else:
-        plt.show()
+##    else:
+##        plt.show()
+    plt.show()
         
 
 def get_stats(wait_times, time_interval, num_fires, array_size):
