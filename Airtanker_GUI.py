@@ -701,7 +701,6 @@ class mainwindow(wx.Frame):
         '''Exit the software'''
         inputs = open("airtanker_saved_input.txt", 'w')
         self.OnStart(inputs, 'write')
-        self.Close(True)
         raise SystemExit
         
     def OnSaveOut(self, e): 

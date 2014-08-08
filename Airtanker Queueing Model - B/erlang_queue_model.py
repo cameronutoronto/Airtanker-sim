@@ -100,8 +100,9 @@ def airtanker_process(env, airtankers, parameters, outputs, index):
         time1 = env.now
         yield req
         wait_time = env.now - time1
-        parameters.num_fires[index] += 1.0
-        parameters.wait_times.append(wait_time)
+        if env.now > 5000 * 60:
+            parameters.num_fires[index] += 1.0
+            parameters.wait_times.append(wait_time)
         if wait_time == 0.0:
             outputs.prob_no_wait[index] += 1.0
         travel_time = generate_gamma_time(parameters.alpha_t, parameters.beta_t)
@@ -117,9 +118,12 @@ def simulation_day(env, airtankers, parameters, outputs):
     env.process(fire_generator(env, airtankers, parameters, outputs))
     env.run(parameters.length_run)
     temp = 0
-    for x in range(len(outputs.prob_no_wait)):
+    for x in xrange(len(outputs.prob_no_wait)):
         temp += parameters.num_fires[x]
-        outputs.prob_no_wait[x] /= temp
+        try:
+            outputs.prob_no_wait[x] /= temp
+        except ZeroDivisionError:
+            pass
 
 def graph_results(outputs, f_p_h, at, s_t, save_file_location):
     '''Graph the queueing simulation results'''
@@ -153,8 +157,6 @@ def graph_results(outputs, f_p_h, at, s_t, save_file_location):
             fig.savefig(save_file_location)
         except IOError:
             print "\nInvalid Save File Location\n"
-##    else:
-##        plt.show()
     plt.show()
         
 
@@ -169,8 +171,8 @@ def get_stats(parameters, outputs, array_size):
     calc_std = np.std
     calc_mean = np.mean
     calc_sum = np.sum
-    for x in range(array_size):
-        outputs.xaxis[x] = x * parameters.time_interval / 60.0
+    for x in xrange(array_size):
+        outputs.xaxis[x] = x * parameters.time_interval / 60.0 
         outputs.std_dev_waits[x] = calc_std(waits[:int(calc_sum(
             parameters.num_fires[:x+1]))]) / 60.0
         outputs.mean_waits[x] = calc_mean(waits[:int(calc_sum(
@@ -183,7 +185,6 @@ def get_stats(parameters, outputs, array_size):
 def main_func(inputs):
     '''Handles running simulation and printing results'''
     time1 = time.clock()
-    #time_interval = get_time_interval()
     print "\nSimulating..."
     env = simpy.Environment()
     parameters = Parameters(inputs)
@@ -202,10 +203,6 @@ def main_func(inputs):
                      "%1.4f" %outputs.mean_service[-1], inputs[4]))
     graphing.start()
     graphing.join()
-    print ('[', outputs.mean_waits[-1], ']', '[', outputs.mean_waits[
-        int(len(outputs.mean_waits) / 2)], ']')
-##    graph_results(outputs, inputs[0], inputs[1], outputs.mean_service[-1],
-##                  inputs[4])
     print "Finished Graphing"
     print "Total Time:", 1 + temp_time2 - time1, "\n"
     

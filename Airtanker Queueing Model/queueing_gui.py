@@ -326,7 +326,7 @@ class mainwindow(wx.Frame):
 def run_gui():
     '''Run GUI'''
     app = wx.App(False)
-    frame = mainwindow(None, "Fire Behaviour Prediction System")
+    frame = mainwindow(None, "Fire Queueing Model")
     frame.Show()
     app.MainLoop()
     

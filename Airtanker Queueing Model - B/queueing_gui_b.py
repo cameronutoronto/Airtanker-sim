@@ -32,7 +32,7 @@ class mainwindow(wx.Frame):
         wx.Frame.__init__(self, parent, title = title, size =(1000, 800))
         self.SetBackgroundColour((215, 80, 80))
         self.logger = wx.TextCtrl(self, size=(500, 250),style=wx.TE_MULTILINE |\
-                                  wx.TE_RICH)
+                                  wx.TE_RICH | wx.TE_READONLY)
         self.stdout_pt = sys.stdout
         sys.stdout = Redirect_Stdout(self.stdout_pt, self.logger)
         self.CreateStatusBar()
@@ -188,7 +188,7 @@ class mainwindow(wx.Frame):
 
         #Beta On-Scene
         self.beta_s_prompt = wx.StaticText(self, label =
-                                            "Travel Time Rate Parameter: ")
+                                            "Scene Time Rate Parameter: ")
         self.beta_s = wx.TextCtrl(self, value="", \
                                       size = (100, -1))
         grid.Add(self.beta_s_prompt, pos = (10, 0))
@@ -390,7 +390,7 @@ class mainwindow(wx.Frame):
 def run_gui():
     '''Run GUI'''
     app = wx.App(False)
-    frame = mainwindow(None, "Fire Queueing Model")
+    frame = mainwindow(None, "Erlang Fire Queueing Model")
     frame.Show()
     app.MainLoop()
     

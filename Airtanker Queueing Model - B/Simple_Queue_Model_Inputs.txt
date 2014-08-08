@@ -1,1 +1,1 @@
-2.0,5,2000000.0,5000.0,C:\Users\Cam\Documents\Airtanker Simulation Model\Airtanker Queueing Model\junk_graph.png,5,5.0,5,5.0,7,7.0
+2.2,4,100000.0,100.0,C:\Users\Cam\Documents\Airtanker Simulation Model\Airtanker Queueing Model - B\junk_graph.png,5,5.0,5,5.0,7,7.0
