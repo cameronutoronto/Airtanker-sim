@@ -1,8 +1,14 @@
 #include<math.h>
 //#include<stdio.h>
-#ifndef M_PI 
+#ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795028841971693
 #endif
+
+/*double abs(double a){
+	if (a >=0) return a;
+	return -1.0 * a;
+
+}*/
 
 double to_rad(double degrees){
 //Convert a number to radians
@@ -49,6 +55,17 @@ return M_PI * (a + b) * (1 + (3 * h) / (10 + sqrt(4 - 3 * h)));}
 double ellipse_radius(double a, double b, double theta){
 if (a == 0.0 || b == 0.0) return 0.0;
 return a * b / (sqrt((b * cos(theta)) * (b * cos(theta)) + (a * sin(theta)) * (a * sin(theta))));}
+
+double minor_axis(double a, double theta, double radius)
+{
+	if (theta == M_PI || theta == 0 || theta == 2 * M_PI ) return 0.0;
+	double constant1 = radius * radius / (a * a);
+	double constant2 = a * sin(theta) * a * sin(theta);
+	return sqrt((-1.0 * constant1 * constant2) / (constant1 * cos(theta) * cos(theta) - 1.0));
+
+}
+
+//int main(){ printf("%lf", minor_axis(10, M_PI * 3 / 2, 3));}
 
 
 

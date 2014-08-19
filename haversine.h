@@ -7,3 +7,4 @@ double area_ellipse(double major, double minor);
 double get_bearing(double x1, double y1, double x2, double y2);
 double translate_coordinate_lat(double lon, double lat, double theta, double d_r);
 double translate_coordinate_lon(double lon, double lat, double theta, double d_r, double new_lat);
+double minor_axis(double a, double theta, double radius);
