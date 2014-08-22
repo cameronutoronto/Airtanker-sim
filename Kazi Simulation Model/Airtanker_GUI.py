@@ -814,7 +814,11 @@ class mainwindow(wx.Frame):
         sim_thread.start()
 
     def run_sim(self):
-        fire_sim_model.main_func(self.input_fixed)
+        try:
+            fire_sim_model.main_func(self.input_fixed)
+        except Exception, e:
+            print(e)
+            self.logger.AppendText(e)
         self.stop_load_bar_flag = True
         time.sleep(0.1)
         self.gauge.SetValue(100)
@@ -863,11 +867,11 @@ class mainwindow(wx.Frame):
         else:
             self.logger.AppendText("\nInvalid Number of runs\n\n")
             return
-        loaded = 100.0 / (0.5 + (max_count * 0.045))
+        loaded = 100.0 / (0.5 + (max_count * 0.075))
         while loaded < 100.0:
             time.sleep(1)
             self.gauge.SetValue(loaded)
-            loaded += 100.0 / (0.5 + (max_count * 0.045))
+            loaded += 100.0 / (0.5 + (max_count * 0.075))
             if self.stop_load_bar_flag:
                 break
         self.gauge.SetValue(100)

@@ -15,7 +15,7 @@ from haversine import * #mathematical functions written in C
 
 #POINTS BROKEN *fixed
 
-EPS = 0.00001 #Epsilon for float comparisons
+EPS = 0.000001 #Epsilon for float comparisons
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #                           Read-only Variables (editable)
@@ -113,23 +113,21 @@ except (IOError, ValueError, IndexError):
     AT_AVAIL_CONST = 30.0
 
 def airtanker_values(airtanker_name):
-    ''' Open AIRTANKER_DATA_LOCATION file and find the stats for the airtanker
-        input file must have a header with properly identified headers
-        model,cruising_airspeed,fight_airspeed,circling_speed,fly_when_dark,
-        drop_type,size,fuel_capacity,fuel_consumption,drop_time'''
+    '''Open AIRTANKER_DATA_LOCATION file and find the stats for the airtanker
+    input file must have a header with properly identified headers
+name,cruising_airspeed,fight_airspeed,circling_speed,fly_when_dark,drop_type,
+size,fuel_capacity,fuel_consumption,after_fire_protocol,initial_attack_radius,
+start_time,end_time,max_flight_time,max_serv_time,drop_time'''
     in_file = open(AIRTANKER_DATA_LOCATION, 'r')
     temp = in_file.readline()
-    #Find line for this model
     while temp!= '' and temp.split(',')[0] != airtanker_name:
         temp = in_file.readline()
         if temp == '':
             print "Invalid airtanker name entered\n"
             raise SystemExit
     temp2 = temp.split(',')
-    #Trim new line character at end of line
     if temp2[-1][-1] == '\n':
         temp2[-1] = temp2[-1][:-1]
-    #convert everything from string to correct type
     for x in xrange(len(temp2)):
         if temp2[x] == "True":
             temp2[x] = True
@@ -147,30 +145,25 @@ def airtanker_values(airtanker_name):
 class User_input(object):
     '''Class containing the user inputted values to be used in the simulation'''
     def __init__(self, inputs):
-        '''inputs is a list of the form:
-            number of runs, length of each run, day's start time, day's end time
-            expected num lightning fires, expected num human fires,
-            show fire attributes?, save daily averages?, month, day,
-            min fmc month, min fmc day, FFMC, BUI, wind speed, wind direction,
-            percent conifer, percent dead fir, grass fuel load, percent cured
-            min latitude, max latitude, min longitude, max longitude,
-            airtanker base information file, fire location frequency file,
-            specific airtanker info file, number of points,
-            points' latitudes, points' longitudes'''
         #Simulation
 
         #Number of "days" simulation repeats itself for 1 <= x (int)
         self.number_runs = inputs[0]
+
         #number of minutes per run (should equal length day but can be longer)
         self.length_run = inputs[1] #minutes
+        #If True, shows all of the data for every fire
+        #self.time_until_start = inputs[47] #~ NEED TO ADD, minutes
         #Time in day at which fires can start being ignited in minutes 0 <= x
-        self.time_until_start = inputs[2] # minutes
+        self.time_until_start = 60
         #Time in day when fires stop starting in minutes time_until_start < x
-        self.time_until_dark = inputs[3]
+        self.time_until_dark = inputs[2]
         #Expected number of lightning fires per day, used to calc arrival times
-        self.lightning_fires_day = inputs[4]
+        self.lightning_fires_day = inputs[3]
         #Expected number of human caused fires per day
-        self.human_fires_day = inputs[5]
+        self.human_fires_day = inputs[4]
+        #NOT CURRENTLY USED ANYWHERE
+        self.check_distance = inputs[5]
         #If true, shows info about every airtanker and fire for each run
         self.show_fire_attributes = inputs[6]
         #If True save more statistics at the cost of memory (FALSE IS BETTER)
@@ -178,7 +171,6 @@ class User_input(object):
 
         #FBP Info
         #NEED TO ADD INPUT FILE FOR THIS DATA BASED ON FOREST CELL !!!
-        #DONT HAVE REFERENCE INPUT FILE HOWEVER...
         #Values used by FBP for determing ROS of fires
         self.month = inputs[8]
         self.day = inputs[9]
@@ -196,80 +188,152 @@ class User_input(object):
         self.PCUR = inputs[19]
 
         #Forest
+
         
         self.min_lat = inputs[20]
         self.max_lat = inputs[21]
         self.min_long = inputs[22]
         self.max_long = inputs[23]
-        #Used if no file for forest data
-        self.num_rows = 100
-        self.num_columns = 100
+        #Number of forest stands in each row
+        self.num_rows = inputs[24]
+        #Number of forest stands in each column
+        self.num_columns = inputs[25]
 
         #Bases
         #Open a CSV of base information, each base should be on its own line
         #latitude,longitude,num_airtankers,airtanker_models....,
         #number_bird_dogs,bird_dog_models....
+        inputs.append('')
+        inputs.append('')
+        inputs.append("base_location_file.txt")
+        inputs.append("Airtanker_information_file.txt")
         try:
-            self.base_info_file = inputs[24]
-            if self.base_info_file == None:
-                raise TypeError
-        except (IndexError, TypeError, IOError):
-            self.base_info_file = "base_location_file.txt"
-        #Base locations in forest
-        self.bases_lat = []
-        self.bases_long = []
-        self.base_num_airtankers = []
-        self.base_num_bird_dogs = []
-        #Get base data
-        try:
-            in_file = open(self.base_info_file, "r")
+            in_file = open(inputs[46], "r")
             self.airtanker_models = []
             self.bird_dogs_models = []
+            for x in range(26, 31):
+                inputs[x] = []
             temp = in_file.readline()
-            self.num_bases = 0
+            num_bases = 0
             while temp != '' and temp != '\n':
                 if temp[-1] == '\n':
-                    temp2 = temp[:-1].split(',')
+                    temp2 = temp.split(',')[:-1]
                 else:
                     temp2 = temp.split(',')
-                self.num_bases += 1
-                self.bases_lat.append(float(temp2[0]))
-                self.bases_long.append(float(temp2[1]))
-                self.base_num_airtankers.append(int(temp2[2]))
-                self.base_num_bird_dogs.append(int(temp2[3]))
+                num_bases += 1
+                inputs[27].append(float(temp2[0]))
+                inputs[28].append(float(temp2[1]))
+                inputs[29].append(int(temp2[2]))
+                self.airtanker_models.append(temp2[3:3+int(temp2[2])])
+                inputs[30].append(float(temp2[3+int(temp2[2])]))
+                self.bird_dogs_models.append(temp2[4+int(temp2[2]):])
                 temp = in_file.readline()
+            inputs[26] = num_bases
             in_file.close()
         except (IOError, ValueError, IndexError):
-            print "Base information Error....Quitting...\n\n"
-            raise SystemExit
+            pass
             
+        #BELOW IS AIRTANKER+BASE INFO ONLY USED IF FILES ARE NOT PRESENT
+        self.num_bases = inputs[26]
+        #If len < num_bases, random number n, min_lat <= x <= max_lat
+        self.bases_lat = inputs[27]
+        #If len < num_bases, random number n, min_long <= x <= max_long
+        self.bases_long = inputs[28]
+        #list of the number of airtankers at each base
+        self.base_num_airtankers = inputs[29]
+        #list of the number of bird dogs at each base
+        self.base_num_bird_dogs = inputs[30]
+        #Cruising speed of each airtanker, km/min
+        self.base_airtankers_cruising=[[inputs[31][x+int(sum(inputs[29][:y]))]\
+                                           for x in xrange(int(inputs[29][y]))]\
+                                           for y in xrange(len(inputs[29]))]
+        #Fight fire flying speed of each airtanker km/min
+        self.base_airtankers_fight = [[inputs[32][x +int(sum(inputs[29][:y]))]\
+                                           for x in xrange(int(inputs[29][y]))]\
+                                           for y in xrange(len(inputs[29]))]
+        #circling speed of each airtanker km/min
+        self.base_airtankers_circling =[[inputs[33][x+int(sum(inputs[29][:y]))]\
+                                           for x in xrange(int(inputs[29][y]))]\
+                                           for y in xrange(len(inputs[29]))]
+        #Bird dogs cruising speed km/min
+        self.base_bird_dogs_cruising = [[inputs[34][x+int(sum(inputs[30][:y]))]\
+                                           for x in xrange(int(inputs[30][y]))]\
+                                           for y in xrange(len(inputs[30]))]
+        #Bird dog speed when at fire km/min
+        self.base_bird_dogs_fight = [[inputs[35][x +int(sum(inputs[30][:y]))] \
+                                           for x in xrange(int(inputs[30][y]))]\
+                                           for y in xrange(len(inputs[30]))]
+        #Bird dogs circling speed km/min
+        self.base_bird_dogs_circling = [[inputs[36][x+int(sum(inputs[30][:y]))]\
+                                           for x in xrange(int(inputs[30][y]))]\
+                                           for y in xrange(len(inputs[30]))]
+        #Airtanker Fuel Capacity
+        self.base_airtankers_fuel_cap =[[inputs[37][x+int(sum(inputs[29][:y]))]\
+                                           for x in xrange(int(inputs[29][y]))]\
+                                           for y in xrange(len(inputs[29]))]
+        #Airtanker Fuel Consumption
+        self.base_airtankers_fuel_con =[[inputs[38][x+int(sum(inputs[29][:y]))]\
+                                           for x in xrange(int(inputs[29][y]))]\
+                                           for y in xrange(len(inputs[29]))]
+        #bird dogs Fuel Capacity
+        self.base_bird_dogs_fuel_cap = [[inputs[39][x+int(sum(inputs[30][:y]))]\
+                                           for x in xrange(int(inputs[30][y]))]\
+                                           for y in xrange(len(inputs[30]))]
+        #bird dogs Fuel Consumption
+        self.base_bird_dogs_fuel_con = [[inputs[40]\
+                                             [x +int(sum(inputs[30][:y]))]\
+                                           for x in xrange(int(inputs[30][y]))]\
+                                           for y in xrange(len(inputs[30]))]
+
+        #Airtanker start times
+        #CHANGE TO INPUTS[47]
+        self.base_airtankers_start_time=[[inputs[37][x+int(sum(inputs[29][:y]))]
+                                           for x in xrange(int(inputs[29][y]))]
+                                          for y in xrange(len(inputs[29]))]
+
+        #Airtanker End Times
+        #CHANGE TO INPUTS[48]
+        self.base_airtankers_end_time =[[inputs[38][x+int(sum(inputs[29][:y]))]\
+                                           for x in xrange(int(inputs[29][y]))]\
+                                           for y in xrange(len(inputs[29]))]
+
         try:
-            self.fire_location_file = inputs[25]
-            if self.fire_location_file == None:
-                raise TypeError
-        except (IndexError, TypeError, IOError):
+            self.airtanker_models = [[inputs[44][x+int(sum(inputs[29][:y]))]\
+                                           for x in xrange(int(inputs[29][y]))]\
+                                           for y in xrange(len(inputs[29]))]
+        except IndexError:
+            self.airtanker_models = ''
+            self.airtanker_models = [["C15"\
+                                           for x in xrange(int(inputs[29][y]))]\
+                                           for y in xrange(len(inputs[29]))]
+
+        try:
+            self.bird_dogs_models = [[inputs[45][x +int(sum(inputs[30][:y]))]\
+                                           for x in xrange(int(inputs[30][y]))]\
+                                           for y in xrange(len(inputs[30]))]
+        except IndexError:
+            self.bird_dogs_models = ''
+
+        try:
+            self.fire_location_file = inputs[49]
+        except IndexError:
             self.fire_location_file = "Prediction 29 July 2014.csv"
-        try:
-            self.specific_airtanker_file = inputs[26]
-            if self.specific_airtanker_file == None:
-                raise TypeError
-        except (IndexError, TypeError, IOError):
-            self.specific_airtanker_file = "base_airtanker_constraints.txt"
+
 
         #Random Points
 
 
         #Number of points in forest to track
-        self.num_points = inputs[27]
+        self.num_points = inputs[41]
         #If len < num_points, random number n, min_lat <= n <= max_lat
-        self.points_lat = inputs[28]
+        self.points_lat = inputs[42]
         #If len < num_points, random number n, min_long<= n <= max_long
-        self.points_long = inputs[29]
+        self.points_long = inputs[43]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #                       Read-only Variables (non-editable)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-##        self.num_stands = self.num_rows * self.num_columns #NOT USED
+        self.num_stands = self.num_rows * self.num_columns #NOT USED
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #                                   Classes
@@ -385,11 +449,9 @@ class Fire(object):
         '''Set time to end of run then grow fires to this time.
         This is true for all non-detected fires and non-controlled fires
         Controlled fires will have this value changed when controlled'''
-##        #Initally set to grow until times darkness on that day
-##        self.time = ((self.time_at_ignition // (LENGTH_DAY * 60.0)) *
-##                     (LENGTH_DAY * 60.0) + inputs.time_until_dark)
-        #initally set to grow until end of the run
-        self.time = inputs.length_run
+        #Initally set to grow until times darkness on that day
+        self.time = ((self.time_at_ignition // (LENGTH_DAY * 60.0)) *
+                     (LENGTH_DAY * 60.0) + inputs.time_until_dark)
         self.growth() #call to growth method
         #save all size parameters to max size ones
         self.max_perimeter = self.perimeter
@@ -680,6 +742,13 @@ class Base(object):
         self.airtankers_resource = airtankers_resource #airtankers for simpy 
         self.bird_dogs_resource = bird_dogs_resource #bird dogs for simpy
 
+class Lake(object): #Assumed circle
+    def __init__(self, latitude, longitude, suitable, radius): #NOT IMPLEMENTED
+        self.latitude = latitude
+        self.longitude = longitude
+        self.suitable = suitable #If True, can be used by Airtankers
+        self.radius = radius
+
 
 class Forest_stand(object): #Records fuel type and slope of that part of forest
     '''One cell of the forest, only used if real forest data is not'''
@@ -763,6 +832,38 @@ def get_stand_info_random(lat, lon, forest, inputs):
         forest[lat_stand - 1][long_stand - 1].slope, \
         forest[lat_stand - 1][long_stand - 1].slope_azimult
 
+def get_stand_info_old(lat, lon, inputs):
+    '''Return fuel type and fuel percent at a coordinate location
+    Using the forest_data_input_file'''
+    forest_data_file = open(FOREST_DATA_LOCATION, 'r')
+    #ignore header line
+    temp = forest_data_file.readline()
+    #Read one cells values and separate into a list
+    temp = forest_data_file.readline()
+    temp2 = temp.split(',')
+    #cell is in list[0]
+    cell = temp2[0]
+    #longitude is list[2] and latitude is list[1], find distance to point
+    dist = distance(lon, lat, float(temp2[2]), float(temp2[1]))
+    #fuel type is list[3]
+    fueltype = temp2[3]
+    #Fuel percent used is list[4] NEED TO CHANGE - NOT CORRECT
+    fuel_perc = float(temp2[4])
+    #continue for all cells in the forest
+    next_temp = forest_data_file.readline()
+    while next_temp != '' and next_temp != '\n':
+        temp = next_temp
+        temp2 = temp.split(',')
+        new_dist = distance(lon, lat, float(temp2[2]), float(temp2[1]))
+        #finds cell with that is closest to the fires ignition point
+        if new_dist < dist:
+            dist = new_dist
+            fueltype = temp2[3]
+            fuel_perc = float(temp2[4])
+            cell = temp2[0]
+        next_temp = forest_data_file.readline()
+    forest_data_file.close()
+    return fueltype, fuel_perc, cell
 
 def get_stand_info(lat, lon, inputs, cell):
     ''' Return fuel type and fuel percent at a coordinate location
@@ -839,6 +940,54 @@ def determine_report_time(env, inputs, cause):
         report_time = human_report_time(env, inputs)
     return report_time
 
+def lightning_determine_latitude(env, inputs, fires):
+    '''determines latitude for a lightning caused fire'''
+    #Fires uniformly spread in forest, doesn't depend on anything else
+    latitude = random.uniform(inputs.min_lat, inputs.max_lat)
+    return latitude
+
+def human_determine_latitude(env, inputs, fires):
+    '''determines latitude for a human caused fire'''
+    #Fires uniformly spread in forest, doesn't depend on anything else
+    latitude = random.uniform(inputs.min_lat, inputs.max_lat)
+    return latitude
+
+def determine_fire_latitude(env, inputs, cause, fires):
+    '''Determines latitude of new fire'''
+    if cause == "Lightning":
+        latitude = lightning_determine_latitude(env, inputs, fires)
+    elif cause == "Human":
+        latitude = human_determine_latitude(env, inputs, fires)
+    return latitude
+
+def lightning_determine_longitude(env, inputs, fires):
+    '''determines longitude for a lightning caused fire'''
+    #Fires uniformly spread in forest, doesn't depend on anything else
+    longitude = random.uniform(inputs.min_long, inputs.max_long)
+    return longitude
+
+def human_determine_longitude(env, inputs, fires):
+    '''determines longitude for a human caused fire'''
+    #Fires uniformly spread in forest, doesn't depend on anything else
+    longitude = random.uniform(inputs.min_long, inputs.max_long)
+    return longitude
+
+def determine_fire_longitude(env, inputs, cause, fires):
+    '''Determines longitude of new fire'''
+    if cause == "Lightning":
+        latitude = lightning_determine_longitude(env, inputs, fires)
+    elif cause == "Human":
+        latitude = human_determine_longitude(env, inputs, fires)
+    return latitude
+
+def determine_fire_location_old(env, inputs, cause, fires):
+    if cause == "Lightning":
+        lat = determine_fire_latitude(env, inputs, cause, fires)
+        lon = determine_fire_longitude(env, inputs, cause, fires)
+    elif cause == "Human":
+        lat = determine_fire_latitude(env, inputs, cause, fires)
+        lon = determine_fire_longitude(env, inputs, cause, fires)
+    return lat, lon
 
 def get_lat_lon(lon, lat, area):
     ''' Takes cell information and returns random point from within it
@@ -1012,34 +1161,23 @@ def create_points(inputs):
 
 #~~~~~~~~Functions Getting Airtanker Statistics~~~~~~~~
 
-def get_airtanker_values(base_num, env, inputs, at_num):
-    '''Gets stats from file specific to each individual airtanker
-        base_num,at_num,after_fire_protocol,initial_attack_radius,start_time,
-        end_time,max_flight_time,max_serv_time,model'''
-    in_file = open(inputs.specific_airtanker_file, 'r')
-    temp = in_file.readline()
-    temp2 = None
-    #Find correct line for the airtanker
-    while temp != '':
-        if temp[-1] == '\n':
-            temp = temp[:-1]
-        temp2 = temp.split(',')
-        if int(temp2[0]) == base_num and int(temp2[1]) == at_num:
-            break
-        temp = in_file.readline()
-    #Line is found so get stats
-    temp2[2] = int(temp2[2]) #After fire protocol
-    temp2[3] = float(temp2[3]) #initial attack radius
-    temp2[4] = float(temp2[4]) #Start service time
-    temp2[5] = float(temp2[5]) #End service time
-    temp2[6] = float(temp2[6]) #max flight time
-    temp2[7] = float(temp2[7]) #max service time
-    model = temp2[8]
-    #Get aircraft model specific stats
-    other_stats = airtanker_values(model)
-    #organize stats same way as they will be put into the Airtanker class
-    formatted_stats = other_stats[1:9] + temp2[2:8] + other_stats[9:]
-    return formatted_stats
+def determine_at_cruising(base_num, env, inputs, at_num):
+    '''Return the airtankers cruising speed'''
+    #speed used for all travelling assumed to accelerate to this speed instantly
+    cruising = float(inputs.base_airtankers_cruising[base_num][at_num])
+    return cruising
+
+def determine_at_fight(base_num, env, inputs, at_num):
+    '''Return the airtankers fight fire speed'''
+    #speed used to fly to and from lake when fighting a fire
+    fight = float(inputs.base_airtankers_fight[base_num][at_num])
+    return fight
+
+def determine_at_circling(base_num, env, inputs, at_num):
+    '''Return the airtankers circling speed'''
+    #Airtanker circling speed, not currently implemented
+    circling = float(inputs.base_airtankers_circling[base_num][at_num])
+    return circling
 
 def determine_at_latitude(base_num, env, inputs, at_num):
     '''Return the airtankers latitude'''
@@ -1052,7 +1190,80 @@ def determine_at_longitude(base_num, env, inputs, at_num):
     #originally set to home base's longitude
     fight = float(inputs.bases_long[base_num])
     return fight
-    
+
+def determine_at_fly_dark(base_num, env, inputs, at_num):
+    '''Return if airtankter can fly after dark'''
+    #Not implemented - probably redundent since airtankers have end times now
+    return False
+
+def determine_at_drop_type(base_num, env, inputs, at_num):
+    '''Return droptype of airtanker: salvo, trail or other'''
+    #Not currently used for anything
+    #Could be used to affect number of drops needed to fight a fire
+    return "salvo"
+
+def determine_at_size(base_num, env, inputs, at_num):
+    '''Return size of the airtanker: small or large'''
+    #Doesnt currently affect anything
+    return "small"
+
+def determine_at_after_fire_prot(base_num, env, inputs, at_num):
+    ''' Return 0 for return to home base
+        Return 1 return closest base
+        Return 2 go to next fire if available else go to home base
+        Return 3 return to closest base, but fly to home base at end of day'''
+    #After fighting a fire, controls what the airtanker will do
+    return random.randint(0, 3)
+
+def determine_at_fuel_cap(base_num, env, inputs, at_num):
+    '''Return the airtankers fuel capacity'''
+    #Not currently used for anthing
+    fuel_cap = float(inputs.base_airtankers_fuel_cap[base_num][at_num])
+    return fuel_cap
+
+def determine_at_fuel_con(base_num, env, inputs, at_num):
+    '''Return the airtankers fuel consumption'''
+    #not currently used for anything
+    fuel_con = float(inputs.base_airtankers_fuel_con[base_num][at_num])
+    return fuel_con
+
+def determine_iar(base_num, env, inputs, at_num):
+    '''Return the airtankers initial attack radius'''
+    #airtanker can only fight fires within this distance of its current location
+    return 2000
+
+def determine_at_start_time(base_num, env, inputs, at_num):
+    '''Return Airtanker Start Time'''
+    #Before this time of day airtankers can not be dispatched
+##    start_time = float(inputs.base_airtankers_start_time[base_num][at_num])
+    start_time = 0
+    return start_time
+
+def determine_at_end_time(base_num, env, inputs, at_num):
+    '''Return Airtanker End Time'''
+    #After this time airtankers cannot START service (can still finish services)
+##    end_time = float(inputs.base_airtankers_end_time[base_num][at_num])
+    end_time = 1550
+    return end_time
+
+def determine_at_max_flight(base_num, env, inputs, at_num):
+    '''Return the airtankers fuel consumption'''
+    #airtankers cannot start service if their flight time exceeds this
+##    max_flight_time = float(inputs.base_airtankers_max_flight[base_num][at_num])
+    max_flight_time = 200 #temp
+    return max_flight_time
+
+def determine_at_max_serv(base_num, env, inputs, at_num):
+    '''Return the airtankers fuel consumption'''
+    #airtankers cannot start service if their service time exceeds this
+##    max_serv_time = float(inputs.base_airtankers_max_serv[base_num][at_num])
+    max_serv_time = 200
+    return max_serv_time
+
+def determine_at_drop_time(base_num, env, inputs, at_num):
+    '''Constant time added to each drop'''
+    #constant time added to each drop cycle
+    return 1
 
 def get_airtanker_stats(base_num, env, inputs, at_num):
     '''Return stats for the given airtanker'''
@@ -1061,8 +1272,32 @@ def get_airtanker_stats(base_num, env, inputs, at_num):
         lat = determine_at_latitude(base_num, env, inputs, at_num)
         lon = determine_at_longitude(base_num, env, inputs, at_num)
         #if there is a file with the airtanker stats for models use that instead
-        stats = get_airtanker_values(base_num, env, inputs, at_num)
-        return stats[0:3] + [lat, lon] + stats[3:]
+        if inputs.airtanker_models != '':
+            stats = airtanker_values(inputs.airtanker_models[base_num][at_num])
+            return stats[1:4] + [lat, lon] + stats[4:]
+        #else call functions for all stats
+        cruising = determine_at_cruising(base_num, env, inputs, at_num)
+        fight = determine_at_fight(base_num, env, inputs, at_num)
+        circling = determine_at_circling(base_num, env, inputs, at_num)
+        ###CHANGE THESE###
+        fly_after_dark = determine_at_fly_dark(base_num, env, inputs, at_num)
+        drop_type = determine_at_drop_type(base_num, env, inputs, at_num)
+        size = determine_at_size(base_num, env, inputs, at_num)
+        ###CHANGE THESE###
+        after_fire_prot = determine_at_after_fire_prot(base_num, env, inputs,
+                                                       at_num)
+        fuel_cap = determine_at_fuel_cap(base_num, env, inputs, at_num)
+        fuel_con = determine_at_fuel_con(base_num, env, inputs, at_num)
+        initial_attack_radius = determine_iar(base_num, env, inputs, at_num)
+        start_time = determine_at_start_time(base_num, env, inputs, at_num)
+        end_time = determine_at_end_time(base_num, env, inputs, at_num)
+        max_flight_time = determine_at_max_flight(base_num, env, inputs, at_num)
+        max_serv_time = determine_at_max_serv(base_num, env, inputs, at_num)
+        drop_time = determine_at_drop_time(base_num, env, inputs, at_num)
+        return (cruising, fight, circling, lat, lon, fly_after_dark, drop_type,
+                size, fuel_cap, fuel_con, after_fire_prot,
+                initial_attack_radius, start_time, end_time, max_flight_time,
+                max_serv_time, drop_time)
     except IndexError:
         print "Not enough airtanker data entered"
         raise SystemExit
@@ -1672,11 +1907,8 @@ def update_points(fires, points):
                 theta = bearing + ((to_rad(fires[y].head_direction) +
                                             EAST_DIRECTION))
             #fire dist is the distance to fire perimeter in point direction
-            maj_axis = (fires[y].max_head_length+fires[y].max_back_length)/ 2
-            angle =  math.atan((2 * fires[y].max_flank_length) /
-                        (fires[y].max_head_length - fires[y].max_back_length))
-            min_axis = minor_axis(maj_axis, angle, fires[y].max_flank_length)
-            fire_dist = ellipse_radius(maj_axis, min_axis, theta)
+            fire_dist = ellipse_radius(fires[y].max_head_length,
+                                       fires[y].max_flank_length, theta)
             #If point is within fires area it is considered burned
             if fire_dist >= point_distance:
                 #Change last days burned value to 1.0 (True)
@@ -1684,6 +1916,40 @@ def update_points(fires, points):
                 #Point already burned so dont need to check other fires
                 break
 
+            
+##def human_fire_wait_time(env, inputs): # OLD AND WRONG
+##    '''Determines wait time for next fire'''
+##    num_fires = inputs.human_fires_day
+####    mean_time = mean_time_between_fires(env, num_fires)
+##    #delta is time period over which fires can occur
+##    delta = inputs.time_until_dark - inputs.time_until_start
+##    fires_m = num_fires / (delta) #mean fires/hour
+##    time = (env.now % (LENGTH_DAY * 60.0)) - inputs.time_until_start
+##    #Fires per hour at current time
+##    fires_t = fires_m - AMP_H * math.cos(2 * math.pi * (time - LAG_H) / delta)
+##    #Get mean_time between fires in minutes
+##    mean_time = 60.0 / fires_t
+##    wait_time = random.expovariate(1.0/(mean_time))
+##    if wait_time < 0: #NEED TO FIX FORMULA SUCH THAT wait_time always > 0
+##        wait_time = 100
+##    return wait_time
+##
+##def lightning_fire_wait_time(env, inputs): #OLD AND WRONG
+##    '''Determines wait time for next fire'''
+##    num_fires = inputs.lightning_fires_day
+####    mean_time = mean_time_between_fires(env, num_fires)
+##    #delta is time period over which fires can occur
+##    delta = inputs.time_until_dark - inputs.time_until_start
+##    fires_m = num_fires / (delta) #mean fires/hour
+##    time = (env.now % (LENGTH_DAY * 60.0)) - inputs.time_until_start
+##    #Fires per hour at current time
+##    fires_t = fires_m - AMP_L * math.cos(2 * math.pi * (time - LAG_L) / delta)
+##    #Get mean_time between fires in minutes
+##    mean_time = 60.0 / fires_t
+##    wait_time = random.expovariate(1.0/(mean_time))
+##    if wait_time < 0: #NEED TO FIX FORMULA SUCH THAT wait_time always > 0
+##        wait_time = 100
+##    return wait_time
 
 def max_arrival_rate_human(env, inputs):
     ''' Return the mean wait time at max poisson interarrival rate
@@ -1692,13 +1958,13 @@ def max_arrival_rate_human(env, inputs):
     num_fires = inputs.human_fires_day
     #delta is the time period over which fires can occur
     delta = inputs.time_until_dark - inputs.time_until_start
-    fires_m = num_fires / (delta) #mean fires per minute
+    fires_m = num_fires / (delta / 60.0) #mean fires per hour
     # Find the time within delta that the highest arrival rate occurs at
     time = delta / 4 + LAG_H
     time = min(max(time, inputs.time_until_start), inputs.time_until_dark)
     fires_t = fires_m - AMP_H*math.cos(2*math.pi*(time - LAG_H)/delta)
     #Return mean wait_time in minutes for fires at max interarrival time
-    return 1.0 / fires_t, fires_m
+    return 60.0 / fires_t, fires_m
 
 def human_arrived_fire_check(env, inputs, fires_m):
     '''Return True if the arrived fire is accepted else return False'''
@@ -1720,13 +1986,13 @@ def max_arrival_rate_lightning(env, inputs):
     num_fires = inputs.lightning_fires_day
     #delta is the time period over which fires can occur
     delta = inputs.time_until_dark - inputs.time_until_start
-    fires_m = num_fires / (delta)#mean fires per minute
+    fires_m = num_fires / (delta  / 60.0)#mean fires per hour
     # Find the fastest arrival rate at a time within delta
     time = delta / 4 + LAG_L
     time = min(max(time, inputs.time_until_start), inputs.time_until_dark)
     fires_t = fires_m - AMP_L*math.cos(2*math.pi*(time - LAG_L)/delta)
     #Return mean wait_time in minutes for fires at max interarrival time
-    return 1.0 / fires_t, fires_m
+    return 60.0 / fires_t, fires_m
 
 def lightning_arrived_fire_check(env, inputs, fires_m):
     '''Return True if the arrived fire is accepted else return False'''
@@ -2455,8 +2721,6 @@ def simulation_day(env, env2, fires, bases, forest, points, stats, inputs):
     else:
         update_statistics_small(stats, fires, bases, points, inputs)
 
-
-#USELESS FUNCTION CURRENTLY - NOT USED
 def define_undefined(inputs):
     '''Gives values for inputs not entered'''
     #This function is designed to add default values to any User inputs
@@ -2498,7 +2762,7 @@ def define_undefined(inputs):
         print "Random Point Longitudes Set"
         inputs.points_long = []
 
-#USELESS FUNCTION CURRENTLY - NOT USED
+
 def check_inputs(inputs):
     '''Check the inputted values, fill in missing ones with default values'''
     #Provide type and value checking on all inputs
@@ -2628,7 +2892,6 @@ def check_inputs(inputs):
             print "\nNumber of Bases Value Out of Range\n\n"
             return -1
     else:
-        print inputs.num_bases
         print "Invalid Number of Bases Value Entered\n\n"
         return -2
     if inputs.num_bases != len(inputs.bases_lat):
@@ -2848,8 +3111,7 @@ def main_func(read_only_values):
     time1 = time.clock()
     #Save user inputs to class
     inputs = User_input(read_only_values)
-##    check = check_inputs(inputs)
-    check = 0
+    check = check_inputs(inputs)
     #Check Inputs - OUTDATED
     if check == -1 or check == -2:
         print "\nImproper Inputs, System Quitting...\n\n"
@@ -2886,21 +3148,23 @@ def main_func(read_only_values):
 #                                Run Simulation
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 if __name__ == '__main__':
-    '''inputs is a list of the form:
-        number of runs, length of each run, day's start time, day's end time
-        expected num lightning fires, expected num human fires,
-        show fire attributes?, save daily averages?, month, day,
-        min fmc month, min fmc day, FFMC, BUI, wind speed, wind direction,
-        percent conifer, percent dead fir, grass fuel load, percent cured
-        min latitude, max latitude, min longitude, max longitude,
-        airtanker base information file, fire location frequency file,
-        specific airtanker info file, number of points,
-        points' latitudes, points' longitudes'''
-
-    list1 = [100, 1440.0, 300.0, 1300.0, 5, 5, False, False, 5, 14, '', '',
-             87, 122, 7, 213, 50, 50, 0.5, 100, 47, 56, -96, -84, None,
-             None, None, 10, '', '']
-
+    list1 = [0 for x in xrange (44)]
+    list1[0] = 100
+    list1[1] = 1440.0
+    list1[3], list1[4] = 5, 5
+    list1[6], list1[7] = False, False
+    list1[8], list1[9], list1[10], list1[11] = 7, 11, '', ''
+    list1[21], list1[23] = 85, 85
+    list1[24], list1[25] = 10, 10
+    list1[26] = 0
+    for y in xrange(27, 44):
+        list1[y] = []
+    list1[41] = 0
+    list1 = [100, 1440, 1000, 5, 5, '', False, False, 5, 26, '', '', 85.0,
+             110.0, 10, 130.0, 60, 60, 60, 60, 47, 56, -96, -84, 10, 10, 2,
+             [65.3, 62.1], [-85.6, -79.4], [2.0, 1.0], [0.0, 0.0],
+             [5.0, 5.0, 4.0], [5.0, 5.0, 4.0], [5.0, 5.0, 4.0], '', '', '',
+             [5.0, 5.0, 3.0], [5.0, 5.0, 3.0], '', '', 10, '', '']
     main_func(list1)
         
     

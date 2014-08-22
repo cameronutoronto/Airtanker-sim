@@ -1,0 +1,2 @@
+C15,5,4,3,True,Salvo,small,100,7,5.5
+C16,10,1,3,True,Salvo,small,130,25,15.0
